@@ -1,1 +1,2 @@
-# CS 8803 - Machine Learning for Robotics
+# CS 8803 - Machine Learning for Robotics.
+# jloy gmallory

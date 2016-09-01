@@ -71,13 +71,14 @@ class FloorPlaneRegression {
             // Eigen is a matrix library. The line below create a 3x3 matrix A,
             // and a 3x1 vector B
             Eigen::MatrixXf A(n,3);
-            Eigen::MatrixXf B(n,1);
+            Eigen::VectorXf B(n);
             for (unsigned int i=0;i<n;i++) {
                 // Assign x,y,z to the coordinates of the point we are
                 // considering.
                 double x = lastpc_[pidx[i]].x;
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
+
 
                 /* Example of initialisation of the matrices (wrong)
                 A(0,0) = x;
@@ -89,22 +90,20 @@ class FloorPlaneRegression {
                 B(2,0) = z;
                 */
                        
-                // Correct initialization of matrices A & B
-                A(i,0) = x;
-                A(i,1) = y;
-                A(i,2) = 1;
+                // Example of initialisation of the matrices (wrong)
                 
-                B(i,0) = z;
-                B(i,1) = 0;
-                B(i,2) = 0;
-                
-                z = {z1, z2, z3, z4 ...zn }                
-                A = (x_i, y_i, 1) // the variables 
-                B = (a, b, c) // the parameters
+				A(i,0) = x;
+				A(i,1) = y;
+				A(i,2) = 1;
+
+                B(i) = z;
+                //B(1,0) = 0;
+                //B(2,0) = 0;
                 
             }
             // Eigen operation on matrices are very natural:
-            Eigen::MatrixXf X = A.transpose() * B;
+            //Eigen::MatrixXf X = A.transpose() * B * (A.transpose() * A).inverse();
+            Eigen::MatrixXf X = A.colPivHouseholderQr().solve(B);
             // Details on linear solver can be found on 
             // http://eigen.tuxfamily.org/dox-devel/group__TutorialLinearAlgebra.html
             
