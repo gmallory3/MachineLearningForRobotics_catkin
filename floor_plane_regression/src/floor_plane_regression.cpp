@@ -70,8 +70,8 @@ class FloorPlaneRegression {
             n = pidx.size();
             // Eigen is a matrix library. The line below create a 3x3 matrix A,
             // and a 3x1 vector B
-            Eigen::MatrixXf A(3,3);
-            Eigen::MatrixXf B(3,1);
+            Eigen::MatrixXf A(n,3);
+            Eigen::MatrixXf B(n,1);
             for (unsigned int i=0;i<n;i++) {
                 // Assign x,y,z to the coordinates of the point we are
                 // considering.
@@ -79,14 +79,29 @@ class FloorPlaneRegression {
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
 
-                // Example of initialisation of the matrices (wrong)
+                /* Example of initialisation of the matrices (wrong)
                 A(0,0) = x;
-                A(1,1) = y;
-                A(2,2) = z;
+                A(0,1) = y;
+                A(0,2) = z;
 
                 B(0,0) = x;
                 B(1,0) = y;
                 B(2,0) = z;
+                */
+                       
+                // Correct initialization of matrices A & B
+                A(i,0) = x;
+                A(i,1) = y;
+                A(i,2) = 1;
+                
+                B(i,0) = z;
+                B(i,1) = 0;
+                B(i,2) = 0;
+                
+                z = {z1, z2, z3, z4 ...zn }                
+                A = (x_i, y_i, 1) // the variables 
+                B = (a, b, c) // the parameters
+                
             }
             // Eigen operation on matrices are very natural:
             Eigen::MatrixXf X = A.transpose() * B;
