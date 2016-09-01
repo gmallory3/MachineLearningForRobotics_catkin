@@ -100,6 +100,15 @@ class FloorPlaneRegression {
                 //B(1,0) = 0;
                 //B(2,0) = 0;
                 
+                /* Note: could include these lines:
+                #include <Eigen/Dense>                
+				using namespace Eigen;
+				* 
+				* to get this to work:
+				* A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b)
+				
+				*/
+                
             }
             // Eigen operation on matrices are very natural:
             //Eigen::MatrixXf X = A.transpose() * B * (A.transpose() * A).inverse();
