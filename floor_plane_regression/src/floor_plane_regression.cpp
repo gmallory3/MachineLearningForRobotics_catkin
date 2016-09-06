@@ -86,8 +86,7 @@ class FloorPlaneRegression {
 				A(i,2) = 1;
 
                 B(i) = z;
-                //B(1,0) = 0;
-                //B(2,0) = 0;
+                
             }
             // Eigen operation on matrices are very natural:
             //Eigen::MatrixXf X = A.transpose() * B * (A.transpose() * A).inverse();
