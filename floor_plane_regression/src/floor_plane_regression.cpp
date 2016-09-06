@@ -79,6 +79,17 @@ class FloorPlaneRegression {
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
 
+
+                /* Example of initialisation of the matrices (wrong)
+                A(0,0) = x;
+                A(0,1) = y;
+                A(0,2) = z;
+
+                B(0,0) = x;
+                B(1,0) = y;
+                B(2,0) = z;
+                */
+                       
                 // Example of initialisation of the matrices (wrong)
                 
 				A(i,0) = x;
