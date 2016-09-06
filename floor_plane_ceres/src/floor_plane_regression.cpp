@@ -66,7 +66,7 @@ struct PlaneError {
             // Check the CERES optimizer web-page for the documentation: 
             // http://homes.cs.washington.edu/~sagarwal/ceres-solver/stable/tutorial.html#chapter-tutorial
 
-            residuals[0] = w[0]*T(x) + w[1]*T(y) + w[2] - T(z); //T(w[0])*x(x)+T(w[1])*y(y)+T(w[2])-z(z);
+            residuals[0] = w[0]*T(x) + w[1]*T(y) + w[2] - T(z);
             
             // END OF TODO
             return true;
