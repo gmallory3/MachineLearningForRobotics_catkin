@@ -78,36 +78,12 @@ class FloorPlaneRegression {
                 double x = lastpc_[pidx[i]].x;
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
-
-
-                /* Example of initialisation of the matrices (wrong)
-                A(0,0) = x;
-                A(0,1) = y;
-                A(0,2) = z;
-
-                B(0,0) = x;
-                B(1,0) = y;
-                B(2,0) = z;
-                */
-                       
-                // Example of initialisation of the matrices (wrong)
                 
 				A(i,0) = x;
 				A(i,1) = y;
 				A(i,2) = 1;
 
-                B(i) = z;
-                //B(1,0) = 0;
-                //B(2,0) = 0;
-                
-                /* Note: could include these lines:
-                #include <Eigen/Dense>                
-				using namespace Eigen;
-				* 
-				* to get this to work:
-				* A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b)
-				
-				*/
+                B(i) = z;                
                 
             }
             // Eigen operation on matrices are very natural:
