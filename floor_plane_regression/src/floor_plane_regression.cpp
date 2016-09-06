@@ -83,7 +83,7 @@ class FloorPlaneRegression {
 				A(i,1) = y;
 				A(i,2) = 1;
 
-                B(i) = z;                
+                B(i) = z;
                 
             }
             // Eigen operation on matrices are very natural:
