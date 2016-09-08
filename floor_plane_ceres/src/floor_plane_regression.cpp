@@ -64,7 +64,7 @@ struct PlaneError {
             // Check the CERES optimizer web-page for the documentation: 
             // http://homes.cs.washington.edu/~sagarwal/ceres-solver/stable/tutorial.html#chapter-tutorial
 
-            residuals[0] = T(w[0])*x(x)+T(w[1])*y(y)+T(w[2])-z(z);
+            residuals[0] = w[0]*T(x)+w[1]*T(y)+w[2]-T(z);
             
             // END OF TODO
             return true;
@@ -72,7 +72,7 @@ struct PlaneError {
 
     double x,y,z, weight;
 };
-
+using ceres::AutoDiffCostFunction;
 class FloorPlaneRegression {
     protected:
         ros::Subscriber scan_sub_;
@@ -124,9 +124,9 @@ class FloorPlaneRegression {
                 // Use the PlaneError defined above to build an error term for
                 // the ceres optimiser (see documentation link above)
 
-                cost_function = new NumericDiffCostFunction<NumericDiffCostFunctor, ceres::CENTRAL, 1, 1, 1>(
-      new NumericDiffCostFunctor);
-      
+                cost_function = new AutoDiffCostFunction<PlaneError, 1, 3>(
+                  new PlaneError(P.x, P.y, P.z, 1));
+           
                 // END OF TODO
                 // This cost function is then added to the optimisation
                 // problem, with X as a parameter
