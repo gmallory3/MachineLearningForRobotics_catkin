@@ -25,6 +25,8 @@ class FloorPlaneRegression {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
+
+			
             // Receive the point cloud and convert it to the right format
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
@@ -37,7 +39,8 @@ class FloorPlaneRegression {
             std::vector<size_t> pidx;
             // First count the useful points
             for (unsigned int i=0;i<n;i++) {
-                float x = temp[i].x;
+				
+				float x = temp[i].x;
                 float y = temp[i].y;
                 float d = hypot(x,y);
                 // In the sensor frame, this point would be inside the camera
@@ -138,11 +141,13 @@ class FloorPlaneRegression {
             m.color.b = 1.0;
             // Finally publish the marker
             marker_pub_.publish(m);
-            
+         
+        
         }
 
     public:
         FloorPlaneRegression() : nh_("~") {
+
             // TODO START
             // The parameter below described the frame in which the point cloud
             // must be projected to be estimated. You need to understand TF
@@ -166,12 +171,14 @@ class FloorPlaneRegression {
 };
 
 int main(int argc, char * argv[]) 
-{
+{	
+
     ros::init(argc,argv,"floor_plane_regression");
     FloorPlaneRegression fp;
 
     ros::spin();
     return 0;
+
 }
 
 

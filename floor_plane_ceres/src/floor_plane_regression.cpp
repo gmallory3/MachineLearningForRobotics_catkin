@@ -39,7 +39,7 @@ DEFINE_string(sparse_linear_algebra_library, "suite_sparse",
 
 DEFINE_string(ordering, "automatic", "Options are: automatic, user.");
 
-DEFINE_bool(robustify, false, "Use a robust loss function.");
+DEFINE_bool(robustify, true, "Use a robust loss function.");
 DEFINE_double(eta, 1e-2, "Default value for eta. Eta determines the "
              "accuracy of each linear solve of the truncated newton step. "
              "Changing this parameter can affect solve performance.");
@@ -49,6 +49,8 @@ DEFINE_int32(num_iterations, 50, "Number of iterations.");
 DEFINE_double(max_solver_time, 1e32, "Maximum solve time in seconds.");
 DEFINE_bool(nonmonotonic_steps, false, "Trust region algorithm can use"
             " nonmonotic steps.");
+            
+using ceres::AutoDiffCostFunction;
 
 struct PlaneError {
     // Create an error measurement to evalute point (x,y,z)
@@ -64,7 +66,8 @@ struct PlaneError {
             // Check the CERES optimizer web-page for the documentation: 
             // http://homes.cs.washington.edu/~sagarwal/ceres-solver/stable/tutorial.html#chapter-tutorial
 
-            residuals[0] = w[0]*T(x)+w[1]*T(y)+w[2]-T(z);
+            residuals[0] = w[0]*T(x) + w[1]*T(y) + w[2] - T(z);
+
             
             // END OF TODO
             return true;
@@ -89,6 +92,8 @@ class FloorPlaneRegression {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
+			
+			
             // Receive the point cloud and convert it to the right format
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
@@ -123,10 +128,12 @@ class FloorPlaneRegression {
                 // TODO START
                 // Use the PlaneError defined above to build an error term for
                 // the ceres optimiser (see documentation link above)
-
-                cost_function = new AutoDiffCostFunction<PlaneError, 1, 3>(
-                  new PlaneError(P.x, P.y, P.z, 1));
            
+
+		cost_function = new AutoDiffCostFunction<PlaneError, 1, 3>(
+			new PlaneError(P.x, P.y, P.z, 1.0));
+      
+
                 // END OF TODO
                 // This cost function is then added to the optimisation
                 // problem, with X as a parameter
@@ -181,6 +188,7 @@ class FloorPlaneRegression {
             // And publish it
             marker_pub_.publish(m);
             
+
         }
 
     public:
@@ -228,7 +236,7 @@ int main(int argc, char * argv[])
 {
     ros::init(argc,argv,"floor_plane_regression");
     FloorPlaneRegression fp;
-
+    
     ros::spin();
     return 0;
 }
