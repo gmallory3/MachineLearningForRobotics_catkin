@@ -870,3 +870,29 @@
 1473349664867908025,-0.0,0.0,0.0,0.0,0.0,0.0
 1473349664884603997,-0.0,0.0,0.0,0.0,0.0,0.0
 1473349664901278721,-0.0,0.0,0.0,0.0,0.0,0.0
+“>¯V–@=pF…>'–@=ùCl>–@&=ÆO>EJ–@¢=& 1>lh–@²=|>ˆm–@^=›ì=Hk–@Ö=/?±=€‚–@2=,_l=éB–@F=Ômì<…›–@
+=×¿4ŸN–@=²6ì¼¡€–@â=µÄk½ø‹–@ò=9±½o–@ş=3¨ì½–@=ÂÒ¾ –@=d1¾Í}–@â=O¾:l–@î=w®l¾ßR–@J=´ê„¾ğz–@¢=5Ô“¾‚6–@f=jÊ¢¾¨––@&=Õ±¾–@2=‚QÀ¾á–@:="8Ï¾ª†–@ş=‚òİ¾û‰–@=õí¾dˆ–@Â=ˆ4ü¾Pƒ–@=P2¿ÜŠ–@"=¦î¿+ƒ–@Ú=‚¿T3–@â=hÉ¿-7–@ê=‡=#¿Ì–@=“*¿;C–@ò==2¿–;–@ö=ì:¿€8–@ª=;wA¿Ü‘–@®=&YI¿….–@ú=‘«P¿}[–@ú=;X¿ÚŸ–@ö=ü_¿ËG–@B=Jrg¿”<–@>=Üqo¿AF–@=Â	w¿æ–@‚=Jı~¿÷–@Ş=pDƒ¿zI–@Ú=¢T‡¿€˜–@=%äŠ¿–@v=N¼¿i8–@R=’¿àm–@’=ğò–¿@–@ê=4{š¿ã/–@&=Êm¿–@=+¢¿ü£–@¶=Û+¦¿Íp–@ò=İ+ª¿ˆ –@Ú=ø®®¿µ…–@=q-²¿İ=–@ö={¶¿à–@.=ûtº¿ø"–@=í°¾¿äK–@’=ÉòÂ¿–@&=·ªÆ¿'u–@=ízÊ¿šv–@Ş=½”Î¿Ø–@=©ÉÒ¿+D–@6=_8×¿É&–@=±ÄÛ¿r<–@–=0kß¿Æi–@¶=ÃÏ@¿vyş?&=•†ç¿Kt–@ú=gºR¿µæ@=s‹T¿@.=ß’J¿Kø?ö=Â/V¿o” @F=lzP¿Øüõ?*=ßèR¿H­õ?2=ÍõÀBH–@
+=
+	Àüv–@v=[UÀÆK–@*=™æ	À©h–@’=]/¿Iš	@
+=«"¿HÓ@=¥eÀÖp–@ş=WÜÀÙa–@=ÿÀ†–@²=#]ÀÀU–@²=|†ÀÆ-–@=÷÷Àbw–@ú=´ŠÀß˜–@=oÕ À(–@ê=ä*#ÀûK–@2=Ñm%Àä…–@"=º–'Ànƒ–@¾=‘U*À…–@R=’û,Àªo–@â=&   	   conn=      op=   time=ˆÑWt5Ë  3  ˆÑWaú2       /vrep   Compressed Depth Image Transport - Compression requires single-channel 32bit-floating point or 16bit raw depth images (input format is: rgb8).O   /tmp/binarydeb/ros-kinetic-compressed-depth-image-transport-1.9.3/src/codec.cppi   CompressedImage_<std::allocator<void> >::Ptr compressed_depth_image_transport::encodeCompressedDepthImage=        /rosout   /tf
+   /vrep/info   /vrep/leftWheelEncoder   /vrep/rightWheelEncoder   /vrep/twistStatus   /vrep/hokuyoSensor"   /vrep/visionSensor/compressedDepth9   /vrep/visionSensor/compressedDepth/parameter_descriptions4   /vrep/visionSensor/compressedDepth/parameter_updates   /vrep/visionSensor/compressed4   /vrep/visionSensor/compressed/parameter_descriptions/   /vrep/visionSensor/compressed/parameter_updates   /vrep/visionSensor   /vrep/visionSensor/theora0   /vrep/visionSensor/theora/parameter_descriptions+   /vrep/visionSensor/theora/parameter_updates   /vrep/visionSensorInfo*   	   conn=      op=   topic=/rosout_agg
+     callerid=/rosout
+   latching=0'   md5sum=acffd30cd6b6de30f120938c17c593fbŠ  message_definition=##
+## Severity level constants
+##
+byte DEBUG=1 #debug level
+byte INFO=2  #general level
+byte WARN=4  #warning level
+byte ERROR=8 #error level
+byte FATAL=16 #fatal/critical level
+##
+## Fields
+##
+Header header
+byte level
+string name # name of the node
+string msg # message 
+string file # file the message came from
+string function # function the message came from
+uint32 line # line the message came from
+string[] topics # 
