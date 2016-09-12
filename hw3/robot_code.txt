@@ -1,0 +1,114 @@
+------------------------------------------------------------------------------ 
+-- Following few lines automatically added by V-REP to guarantee compatibility 
+-- with V-REP 3.1.3 and later: 
+if (sim_call_type==sim_childscriptcall_initialization) then 
+ 
+end 
+if (sim_call_type==sim_childscriptcall_cleanup) then 
+ 
+end 
+if (sim_call_type==sim_childscriptcall_sensing) then 
+	if not firstTimeHere93846738 then 
+		firstTimeHere93846738=0 
+	end 
+	simSetScriptAttribute(sim_handle_self,sim_scriptattribute_executioncount,firstTimeHere93846738) 
+	firstTimeHere93846738=firstTimeHere93846738+1 
+ 
+------------------------------------------------------------------------------ 
+ 
+ 
+if (simGetScriptExecutionCount()==0) then
+	
+		-- Put some initialization code here
+	
+		-- Make sure you read the section on "Accessing general-type objects programmatically"
+		-- For instance, if you wish to retrieve the handle of a scene object, use following instruction:
+		--
+		floor=simGetObjectHandle('DefaultFloor')
+		leftMotor=simGetObjectHandle('leftMotor')
+		rightMotor=simGetObjectHandle('rightMotor')
+		leftWheel=simGetObjectHandle('leftWheel')
+		rightWheel=simGetObjectHandle('rightWheel')
+	
+	leftpos = simGetObjectPosition(leftMotor,-1)
+	rightpos = simGetObjectPosition(rightMotor,-1)
+	
+	-- compute the interwheel distance
+	dx=leftpos[1]-rightpos[1]
+	dy=leftpos[2]-rightpos[2]
+	dz=leftpos[3]-rightpos[3]
+	L = math.sqrt(dx*dx+dy*dy+dz*dz)
+	-- compute the wheel radius, assuming the robot is flat on the ground
+	r = math.abs(leftpos[3])
+	
+	jp_left = simGetJointPosition(leftMotor)
+	jp_right = simGetJointPosition(rightMotor)
+	
+	end
+	
+	-- commented by V-REP: simHandleChildScript(sim_handle_all_except_explicit)
+	
+	-- Put your main code here
+	
+	-- For example:
+	--
+	
+	
+	packed = simGetStringSignal("twist_command") -- set the signal
+	if packed then
+		twist = simUnpackFloats(packed)
+		if #twist == 6 then
+			u_right = (2*twist[1] + L*twist[6])/(2*r) + math.random(-3, 3)
+			u_left = (2*twist[1] - L*twist[6])/(2*r) + math.random(-3,3)
+			simSetJointTargetVelocity(rightMotor,u_right)
+			simSetJointTargetVelocity(leftMotor,u_left)
+		end
+	end
+	
+	dt=simGetSimulationTimeStep()
+	
+	j_left = simGetJointPosition(leftMotor)
+	j_right = simGetJointPosition(rightMotor)
+	
+	d_left = math.fmod(j_left - jp_left,2*math.pi)
+	if (d_left > math.pi) then
+		d_left = d_left - 2*math.pi
+	end
+	if (d_left <-math.pi) then
+		d_left = d_left + 2*math.pi
+	end
+	d_right = math.fmod(j_right - jp_right,2*math.pi)
+	if (d_right > math.pi) then
+		d_right = d_right - 2*math.pi
+	end
+	if (d_right <-math.pi) then
+		d_right = d_right + 2*math.pi
+	end
+	v_left = d_left/dt
+	v_right = d_right/dt
+	
+	jp_left = j_left
+	jp_right = j_right
+	
+	twist = {r*(v_left+v_right)/2 + math.random(-0.5, 0.5), 0 ,0 , 0 ,0 , r*(v_right-v_left)/L + math.random(-0.5, 0.5)}
+	simSetStringSignal("twist_status",simPackFloats(twist))
+	
+	
+	-- position=simGetObjectPosition(handle,-1)
+	-- position[1]=position[1]+0.001
+	-- simSetObjectPosition(handle,-1,position)
+	
+	if (simGetSimulationState()==sim_simulation_advancing_lastbeforestop) then
+	
+		-- Put some restoration code here
+	
+	end
+	
+ 
+ 
+------------------------------------------------------------------------------ 
+-- Following few lines automatically added by V-REP to guarantee compatibility 
+-- with V-REP 3.1.3 and later: 
+end 
+------------------------------------------------------------------------------ 
+
