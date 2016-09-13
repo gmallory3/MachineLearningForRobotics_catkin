@@ -5,10 +5,10 @@
         <param name="trigger" value="command"/>
         <param name="command_type" value="geometry_msgs/Twist"/>
         <param name="command_field" value="linear.x"/>
-        <param name="command_coef_csv" value="0.04822,0.08193,0.08512,-0.04283"/>
+        <param name="command_coef_csv" value="-0.03343,0.02551,0.1098,0.03073"/>
         <param name="state_type" value="geometry_msgs/TwistStamped"/>
         <param name="state_field" value="twist.linear.x"/>
-        <param name="state_coef_csv" value="0.1484,0.01933,-0.03534,-0.9972"/>
+        <param name="state_coef_csv" value="-0.0143,-0.08758,-0.2148,-0.5688"/>
 
         <remap from="/predictor/command" to="vrep/twistCommand"/>
         <remap from="/predictor/state" to="vrep/twistStatus"/>
