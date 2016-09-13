@@ -90,7 +90,7 @@ if (simGetScriptExecutionCount()==0) then
 	jp_left = j_left
 	jp_right = j_right
 	
-	twist = {r*(v_left+v_right)/2 + math.random(-0.5, 0.5), 0 ,0 , 0 ,0 , r*(v_right-v_left)/L + math.random(-0.5, 0.5)}
+	twist = {r*(v_left+v_right)/2 + math.random()*0.2-0.1, 0 ,0 , 0 ,0 , r*(v_right-v_left)/L}
 	simSetStringSignal("twist_status",simPackFloats(twist))
 	
 	
