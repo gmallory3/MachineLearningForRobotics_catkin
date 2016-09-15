@@ -7,6 +7,9 @@
 #include <opencv2/opencv.hpp>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
+#include <cmath>
+#include <iostream>
+#include <cstdlib>
 
 #include <Eigen/Core>
 
@@ -25,10 +28,9 @@ class FloorPlaneHough {
         cv::Mat_<uint32_t> accumulator;
 
         int n_a, n_b, n_c;
-        int delta_a, delta_b, delta_c;
         double a_min, a_max, b_min, b_max, c_min, c_max;
 		double a, b, c;
-		int k_a, k_b, k_c;
+		
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
@@ -67,46 +69,59 @@ class FloorPlaneHough {
             n = pidx.size();
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
             // fill the accumulator with zeros
+            
             accumulator = 0;
             
-            for (unsigned int i=0;i<n;i++) {
+            double delta_a, delta_b, delta_c;
+            delta_a = (a_max-a_min)/n_a;
+            delta_b = (b_max-b_min)/n_b;
+            delta_c = (c_max-c_min)/n_c;
+            
+            for (unsigned int i=0;i < n;i++) {
                 double x = lastpc_[pidx[i]].x;
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
                 // Update the accumulator based on current point here
                 // individual cells in the accumulator can be accessed as follows
-                delta_a = (a_max-a_min)/n_a;
-                delta_b = (b_max-b_min)/n_b;
-                delta_c = (c_max-c_min)/n_c;
-                
-                for (int j=a_min;j<a_max;j+=delta_a) {
-					for (int k=b_min;k<b_max;k+=delta_b) {
+
+                int k_a, k_b, k_c;
+
+                for (unsigned int j=0; j < (unsigned)n_a; j++) {
+					for (unsigned int k=0; k < (unsigned)n_b; k++) {
 						a = a_min + j*delta_a;
 						b = b_min + k*delta_b;
-						c = z - x*j - y*k;
+						c = z - x*a - y*b;
 						k_a = j;
 						k_b = k;
-						k_c = (c-c_min)/delta_c;
-						accumulator(k_a,k_b,k_c)+=1;
+						k_c = round((c-c_min)/delta_c);
+						if(k_c < n_c && k_c >= 0) {
+							accumulator(k_a,k_b,k_c) += 1;
+						}
 					}
 				}
             }
 
+			std::cout << "Reached this point" << '\n';
             double X[3] = {0,0,0};
             // Use the accumulator to find the best plane parameters and store
             // them in X (this will be used for display later)
             // X = {a,b,c}
-            double max=0;
-			for (unsigned int i=0;i<n_a;i++) {
-				for (unsigned int j=0;j<n_b;j++) {
-					for (unsigned int k=0;j<n_c;k++) {
-						if (accumulator(i,j,k)>max) {
+            
+            double max = 0;
+			
+			for (unsigned int i = 0; i < n_a; i++) {
+				for (unsigned int j = 0; j < n_b; j++) {
+					for (unsigned int k = 0; k < n_c; k++) {
+						if (accumulator(i, j, k) >= max) {
 							max = accumulator(i,j,k);
-							a=i; b=j; c=k;
+							a = a_min + i * delta_a;
+							b = b_min + j * delta_b;
+							c = c_min + k * delta_c;
 						}
 					}
 				}
 			}
+			
 			X[0]=a; X[1]=b; X[2]=c;
             // END OF TODO
             ROS_INFO("Extracted floor plane: z = %.2fx + %.2fy + %.2f",
