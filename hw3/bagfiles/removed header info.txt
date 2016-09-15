@@ -1,0 +1,9 @@
+From twistCommand:
+
+%time,field.linear.x,field.linear.y,field.linear.z,field.angular.x,field.angular.y,field.angular.z
+
+
+
+From twistStatus:
+%time,field.header.seq,field.header.stamp,field.header.frame_id,field.twist.linear.x,field.twist.linear.y,field.twist.linear.z,field.twist.angular.x,field.twist.angular.y,field.twist.angular.z
+
