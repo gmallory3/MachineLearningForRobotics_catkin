@@ -25,6 +25,7 @@ class FloorPlaneHough {
         cv::Mat_<uint32_t> accumulator;
 
         int n_a, n_b, n_c;
+        int delta_a, delta_b, delta_c;
         double a_min, a_max, b_min, b_max, c_min, c_max;
 		double a, b, c;
 		int k_a, k_b, k_c;
@@ -78,7 +79,7 @@ class FloorPlaneHough {
                 delta_b = (b_max-b_min)/n_b;
                 delta_c = (c_max-c_min)/n_c;
                 
-                for (unsigned int j=a_min;j<a_max;j+=delta_a) {
+                for (int j=a_min;j<a_max;j+=delta_a) {
 					for (unsigned int k=b_min;k<b_max;k+=delta_b) {
 						a = a_min + j*delta_a;
 						b = b_min + k*delta_b;
@@ -89,15 +90,24 @@ class FloorPlaneHough {
 						accumulator(k_a,k_b,k_c)+=1;
 					}
 				}
-				
-				for (unsigned int l=
             }
 
             double X[3] = {0,0,0};
             // Use the accumulator to find the best plane parameters and store
             // them in X (this will be used for display later)
             // X = {a,b,c}
-
+            double max=0;
+			for (unsigned int i=0;i<n_a;i++) {
+				for (unsigned int j=0;j<n_b;j++) {
+					for (unsigned int k=0;j<n_c;k++) {
+						if (accumulator(i,j,k)>max) {
+							max = accumulator(i,j,k);
+							a=i; b=j; c=k;
+						}
+					}
+				}
+			}
+			X[0]=a; X[1]=b; X[2]=c;
             // END OF TODO
             ROS_INFO("Extracted floor plane: z = %.2fx + %.2fy + %.2f",
                     X[0],X[1],X[2]);

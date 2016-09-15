@@ -2,7 +2,7 @@
 
 	<node pkg="joy" name="joy" type="joy_node"/>
 	
-	<node pkg="learning_joy" name="learning_joy" type="learning_joy_hw3.py">
+	<node pkg="learning_joy" name="learning_joy" type="learning_joy.py">
 		<remap from="~input" to="joy"/>
 		<remap from="~output" to="vrep/twistCommand"/>
 	</node> 

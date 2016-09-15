@@ -18,7 +18,6 @@ def start():
     global pub
     rospy.Subscriber("~input", Joy, callback)
     pub = rospy.Publisher('~output', Twist)
-    rate = rospy.Rate(60)
     
     rospy.spin()
 
