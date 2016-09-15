@@ -80,7 +80,7 @@ class FloorPlaneHough {
                 delta_c = (c_max-c_min)/n_c;
                 
                 for (int j=a_min;j<a_max;j+=delta_a) {
-					for (unsigned int k=b_min;k<b_max;k+=delta_b) {
+					for (int k=b_min;k<b_max;k+=delta_b) {
 						a = a_min + j*delta_a;
 						b = b_min + k*delta_b;
 						c = z - x*j - y*k;
