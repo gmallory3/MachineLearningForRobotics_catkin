@@ -1,0 +1,12 @@
+<launch>
+
+	<node pkg="joy" name="joy" type="joy_node"/>
+	
+	<node pkg="learning_joy" name="learning_joy" type="learning_joy_hw3.py">
+		<remap from="~input_0" to="/joy"/>
+		<remap from="~input_1" to="/vrep/twistStatus"/>
+		<remap from="~output" to="/vrep/twistCommand"/>
+	</node> 
+		
+	
+</launch>
