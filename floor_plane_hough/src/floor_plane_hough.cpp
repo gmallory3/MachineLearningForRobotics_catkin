@@ -77,7 +77,7 @@ class FloorPlaneHough {
             delta_b = (b_max-b_min)/n_b;
             delta_c = (c_max-c_min)/n_c;
             
-            for (unsigned int i=0;i<n;i++) {
+            for (unsigned int i=0;i < n;i++) {
                 double x = lastpc_[pidx[i]].x;
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
@@ -86,8 +86,8 @@ class FloorPlaneHough {
 
                 int k_a, k_b, k_c;
                 
-                for (unsigned int j=0; j<n_a; j++) {
-					for (unsigned int k=0; k<n_b; k++) {
+                for (unsigned int j=0; j < (unsigned)n_a; j++) {
+					for (unsigned int k=0; k < (unsigned)n_b; k++) {
 						a = a_min + j*delta_a;
 						b = b_min + k*delta_b;
 						c = z - x*a - y*b;

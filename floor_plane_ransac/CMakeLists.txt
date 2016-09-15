@@ -78,6 +78,8 @@ include_directories(
     ${EIGEN_INCLUDE_DIR} ${catkin_INCLUDE_DIRS}
 )
 
+add_definitions(-g -ggdb -O0 -Wall)
+
 ## Declare a cpp library
 # add_library(floor_plane_ransac
 #   src/${PROJECT_NAME}/floor_plane_ransac.cpp

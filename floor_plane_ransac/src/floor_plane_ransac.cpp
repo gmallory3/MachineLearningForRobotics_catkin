@@ -6,8 +6,12 @@
 #include <pcl/point_types.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
+#include <cmath>
+#include <iostream>
+#include <cstdlib>
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 
 class FloorPlaneRansac {
@@ -63,19 +67,52 @@ class FloorPlaneRansac {
             size_t best = 0;
             double X[3] = {0,0,0};
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
+            
+            
             for (unsigned int i=0;i<(unsigned)n_samples;i++) {
                 // Implement RANSAC here. Useful commands:
-                // Select a random number in in [0,i-1]
-                size_t j = std::min((rand() / (double)RAND_MAX) * i,(double)i-1);
-                // Create a 3D point:
-                // Eigen::Vector3f P; P << x,y,z;
-                Eigen::Vector3f P; P << lastpc_[pidx[0]].x, lastpc_[pidx[0]].y, lastpc_[pidx[0]].z; 
-                // Dot product
-                double x = P.dot(P);
-                // Cross product
-                Eigen::Vector3f Q = P.cross(P); 
-                // Vector norm
-                double norm = P.norm();
+                // Select a random number in [0,n-1]
+				size_t j_1 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
+				size_t j_2 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
+				size_t j_3 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
+				
+				// Verify there are no similar points
+				if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
+				 
+				// Create a 3D point:
+				// Eigen::Vector3f P; P << x,y,z;
+				// Finding the plane equation by solving AY=B
+				Eigen::Matrix3d A; A << lastpc_[pidx[j_1]].x, lastpc_[pidx[j_1]].y, 1, 
+										lastpc_[pidx[j_2]].x, lastpc_[pidx[j_2]].y, 1,
+										lastpc_[pidx[j_3]].x, lastpc_[pidx[j_3]].y, 1;
+					
+				Eigen::Vector3d B; B << lastpc_[pidx[j_1]].z, lastpc_[pidx[j_2]].z, lastpc_[pidx[j_3]].z; 
+				
+				//Verify that A is inversible
+				if (A.determinant() == 0) {continue;}
+				
+				Eigen::Vector3d Y = A.colPivHouseholderQr().solve(B);
+ 
+				unsigned int count = 0;
+				
+				for (unsigned j = 0; j < n; j++) {
+					Eigen::Vector3f W; W << lastpc_[pidx[j]].x, lastpc_[pidx[j]].y, lastpc_[pidx[j]].z;
+					double dist = abs(Y[0] * W[0] + Y[1] * W[1] - W[2] + Y[2])/sqrt(pow(Y[0],2.0)+pow(Y[1],2.0)+1);
+					if (dist <= tolerance) {count++;}
+				}
+				
+				if (count > best) {
+					best = count;
+					for (unsigned int k = 0; k < 3; k++) {
+						X[k] = Y[k];
+					}
+				} 
+				// Dot product
+				//double x = P.dot(P);
+				// Cross product
+				//Eigen::Vector3f Q = P.cross(P); 
+				// Vector norm
+				//double norm = P.norm();
 
             }
             // At the end, make sure to store the best plane estimate in X
