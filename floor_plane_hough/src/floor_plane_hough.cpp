@@ -101,7 +101,7 @@ class FloorPlaneHough {
 				}
             }
 
-			std::cout << "Reached this point" << '\n';
+
             double X[3] = {0,0,0};
             // Use the accumulator to find the best plane parameters and store
             // them in X (this will be used for display later)
@@ -109,9 +109,9 @@ class FloorPlaneHough {
             
             double max = 0;
 			
-			for (unsigned int i = 0; i < n_a; i++) {
-				for (unsigned int j = 0; j < n_b; j++) {
-					for (unsigned int k = 0; k < n_c; k++) {
+			for (unsigned int i = 0; i < (unsigned)n_a; i++) {
+				for (unsigned int j = 0; j < (unsigned)n_b; j++) {
+					for (unsigned int k = 0; k < (unsigned)n_c; k++) {
 						if (accumulator(i, j, k) >= max) {
 							max = accumulator(i,j,k);
 							a = a_min + i * delta_a;
