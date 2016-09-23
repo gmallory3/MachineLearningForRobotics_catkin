@@ -97,7 +97,7 @@ class FloorPlaneRansac {
 				
 				for (unsigned j = 0; j < n; j++) {
 					Eigen::Vector3f W; W << lastpc_[pidx[j]].x, lastpc_[pidx[j]].y, lastpc_[pidx[j]].z;
-					double dist = abs(Y[0] * W[0] + Y[1] * W[1] - W[2] + Y[2])/sqrt(pow(Y[0],2.0)+pow(Y[1],2.0)+1);
+					double dist = fabs(Y[0] * W[0] + Y[1] * W[1] - W[2] + Y[2])/sqrt(pow(Y[0],2.0)+pow(Y[1],2.0)+1);
 					if (dist <= tolerance) {count++;}
 				}
 				
