@@ -109,12 +109,6 @@ class FloorPlaneRansac {
 						X[k] = Y[k];
 					}
 				} 
-				// Dot product
-				//double x = P.dot(P);
-				// Cross product
-				//Eigen::Vector3f Q = P.cross(P); 
-				// Vector norm
-				//double norm = P.norm();
 
             }
             // At the end, make sure to store the best plane estimate in X

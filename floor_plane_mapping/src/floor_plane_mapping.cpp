@@ -15,9 +15,11 @@
 #include <Eigen/Dense>
 
 
-class FloorPlaneRansac {
+class FloorPlaneMapping {
     protected:
         ros::Subscriber scan_sub_;
+        ros::Subscriber ransac_sub_;
+        ros::Publisher ransac_pub_;
         tf::TransformListener listener_;
 
         ros::NodeHandle nh_;
@@ -43,6 +45,9 @@ class FloorPlaneRansac {
             // Make sure the point cloud is in the base-frame
             listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
             pcl_ros::transformPointCloud(base_frame_,msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
+            
+            listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
+            pcl_ros::transformPointCloud(world_frame_,msg->header.stamp, temp, msg->header.frame_id, worldpc_, listener_);
 
             //
             unsigned int n = temp.size();
@@ -68,18 +73,23 @@ class FloorPlaneRansac {
             
             n = pidx.size();
             
+            //array[i][j].push_back(point[k]);
+			//for (PointList::const_iterator it=array[i][j].begin();it != array[i][j].end(); it++) {
+			//	pcl::PointXYZ & P = *it;
+			//	double x = P.x, y = P.y, z = P.z;
+			//}
             for (int i=0; i<n; i++) {
-					PointListArray(floor((lastpc_[i].x + 5)*n_x/10),floor((lastpc_[i].y + 5)*n_y/10)).push_back(lastpc_[i]);
+					PointListArray(floor((worldpc_[i].x + 5)*n_x/10),floor((worldpc_[i].y + 5)*n_y/10)).push_back(worldpc_[i]);
 			}
-
-			
-			
-			
             
         }
+        
+        void slope_callback(const std_msgs::Float64 slope) {
+			
+		}
 
     public:
-        FloorPlaneRansac() : nh_("~") {
+        FloorPlaneMapping() : nh_("~") {
             nh_.param("base_frame",base_frame_,std::string("/body"));
             nh_.param("max_range",max_range_,5.0);
             nh_.param("n_samples",n_samples,1000);
@@ -92,7 +102,10 @@ class FloorPlaneRansac {
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
 
-            scan_sub_ = nh_.subscribe("scans",1,&FloorPlaneRansac::pc_callback,this);
+            scan_sub_ = nh_.subscribe("scans",1,&FloorPlaneMapping::pc_callback,this);
+            ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope",100,&FloorPlaneMapping::slope_callback,this);
+            ransac_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("ransac_mapping",100);
+            array.assign(n_x,PointListVector(n_y));
         }
 
 };
@@ -100,7 +113,7 @@ class FloorPlaneRansac {
 int main(int argc, char * argv[]) 
 {
     ros::init(argc,argv,"floor_plane_Ransac");
-    FloorPlaneRansac fp;
+    FloorPlaneMapping fp;
 
     ros::spin();
     return 0;
