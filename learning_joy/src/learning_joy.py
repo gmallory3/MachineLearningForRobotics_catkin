@@ -7,7 +7,7 @@ twist = Twist()
 
 def callback(data):
     twist.linear.x = 1*data.axes[1]
-    twist.angular.z = 4*data.axes[0]
+    twist.angular.z = 1*data.axes[0]
     pub.publish(twist)
     
 

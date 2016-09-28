@@ -4,7 +4,7 @@
 	
 
 	<node pkg="learning_joy" name="learning_joy" type="learning_joy.py">
-		<remap from="~input_0" to="/joy"/>
+		<remap from="~input" to="/joy"/>
 		<remap from="~input_1" to="/vrep/twistStatus"/>
 		<remap from="~output" to="/vrep/twistCommand"/>
 
