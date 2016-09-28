@@ -34,7 +34,7 @@ class FloorPlaneMapping {
 		typedef std::vector<PointList> PointListVector;
 		typedef std::vector<PointListVector>PointListArray;
 			
-		PointListArray array(n_x,PointListVector(n_y));
+		PointListArray map_array(n_x,PointListVector(n_y));
 		
     protected: // ROS Callbacks
 
@@ -80,13 +80,26 @@ class FloorPlaneMapping {
 			//	double x = P.x, y = P.y, z = P.z;
 			//}
             for (int i=0; i<n; i++) {
-					PointListArray(floor((worldpc_[i].x + 5)*n_x/10),floor((worldpc_[i].y + 5)*n_y/10)).push_back(worldpc_[i]);
+				int j = floor((worldpc_[i].x + 5)*n_x/10);
+				int k = floor((worldpc_[i].y + 5)*n_y/10);
+				map_array[j][k].push_back(worldpc_[i]);
 			}
-
-            
+			
+			for (int i=0; i<n_x; i++) {
+				for (int j=0; j<n_y; i++) {
+					
+					ransac_pub_.publish(
+					
+					for (PointList::const_iterator it=map_array[i][j].begin();it != map_array[i][j].end(); it++) {
+						pcl::PointXYZ & P = *it;
+						double x = P.x, y = P.y, z = P.z;
+					}
+				}
+			}
         }
         
         void slope_callback(const std_msgs::Float64 slope) {
+			Eigen::MatrixXd M; 
 			
 		}
         
@@ -109,7 +122,7 @@ class FloorPlaneMapping {
             scan_sub_ = nh_.subscribe("scans",1,&FloorPlaneMapping::pc_callback,this);
             ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope",100,&FloorPlaneMapping::slope_callback,this);
             ransac_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("ransac_mapping",100);
-            array.assign(n_x,PointListVector(n_y));
+            map_array.assign(n_x,PointListVector(n_y));
         }
 
 };
