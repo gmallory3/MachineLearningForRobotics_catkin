@@ -15,7 +15,7 @@
 #include <Eigen/Dense>
 
 
-class FloorPlaneRansac {
+class FloorPlaneMapping {
     protected:
         ros::Subscriber scan_sub_;
         tf::TransformListener listener_;
@@ -40,11 +40,12 @@ class FloorPlaneRansac {
 			
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
+            
             // Make sure the point cloud is in the base-frame
             listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
             pcl_ros::transformPointCloud(base_frame_,msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
-
-            //
+		
+		
             unsigned int n = temp.size();
             std::vector<size_t> pidx;
             // First count the useful points
@@ -67,19 +68,19 @@ class FloorPlaneRansac {
             }
             
             n = pidx.size();
+            ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
             
             for (int i=0; i<n; i++) {
 					PointListArray(floor((lastpc_[i].x + 5)*n_x/10),floor((lastpc_[i].y + 5)*n_y/10)).push_back(lastpc_[i]);
 			}
 
-			
-			
-			
+
             
         }
+        
 
     public:
-        FloorPlaneRansac() : nh_("~") {
+        FloorPlaneMapping() : nh_("~") {
             nh_.param("base_frame",base_frame_,std::string("/body"));
             nh_.param("max_range",max_range_,5.0);
             nh_.param("n_samples",n_samples,1000);
@@ -99,8 +100,8 @@ class FloorPlaneRansac {
 
 int main(int argc, char * argv[]) 
 {
-    ros::init(argc,argv,"floor_plane_Ransac");
-    FloorPlaneRansac fp;
+    ros::init(argc,argv,"floor_plane_mapping");
+    FloorPlaneMapping fp;
 
     ros::spin();
     return 0;

@@ -1,0 +1,7 @@
+<launch>
+	
+	<include file="$(find floor_plane_ransac)/launch/fpr.launch"/>
+	<include file="$(find floor_nav)/launch/launch_vrep.launch"/>
+	
+		
+</launch>
