@@ -85,7 +85,7 @@ class FloorPlaneHough {
                 // individual cells in the accumulator can be accessed as follows
 
                 int k_a, k_b, k_c;
-                
+
                 for (unsigned int j=0; j < (unsigned)n_a; j++) {
 					for (unsigned int k=0; k < (unsigned)n_b; k++) {
 						a = a_min + j*delta_a;

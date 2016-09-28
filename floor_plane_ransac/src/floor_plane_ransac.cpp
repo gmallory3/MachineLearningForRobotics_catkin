@@ -116,17 +116,18 @@ class FloorPlaneRansac {
 			
             // END OF TODO
             
-            // Publishing angle between normal vector and ez
-            //double cos = -1 / sqrt(pow(Y[0],2.0)+pow(Y[1],2.0)+1);
-            
-            ROS_INFO("Extracted floor plane: z = %.2fx + %.2fy + %.2f",
-                    X[0],X[1],X[2]);
 
 			//Publishing angle between normal vector and z.
 			std_msgs::Float64 cos_msg;
 			cos_msg.data = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
 			ROS_INFO("angle: %.2f", cos_msg.data);
 			slope_pub_.publish(cos_msg);
+			
+			
+			//Publish the floor plane
+            ROS_INFO("Extracted floor plane: z = %.2fx + %.2fy + %.2f",
+                    X[0],X[1],X[2]);			
+			
         
             Eigen::Vector3f O,u,v,w;
             w << X[0], X[1], -1.0;

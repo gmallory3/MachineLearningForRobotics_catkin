@@ -42,6 +42,7 @@ class FloorPlaneMapping {
 			
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
+            
             // Make sure the point cloud is in the base-frame
             listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
             pcl_ros::transformPointCloud(base_frame_,msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
@@ -49,7 +50,6 @@ class FloorPlaneMapping {
             listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
             pcl_ros::transformPointCloud(world_frame_,msg->header.stamp, temp, msg->header.frame_id, worldpc_, listener_);
 
-            //
             unsigned int n = temp.size();
             std::vector<size_t> pidx;
             // First count the useful points
@@ -72,6 +72,7 @@ class FloorPlaneMapping {
             }
             
             n = pidx.size();
+            ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
             
             //array[i][j].push_back(point[k]);
 			//for (PointList::const_iterator it=array[i][j].begin();it != array[i][j].end(); it++) {
@@ -81,12 +82,15 @@ class FloorPlaneMapping {
             for (int i=0; i<n; i++) {
 					PointListArray(floor((worldpc_[i].x + 5)*n_x/10),floor((worldpc_[i].y + 5)*n_y/10)).push_back(worldpc_[i]);
 			}
+
             
         }
         
         void slope_callback(const std_msgs::Float64 slope) {
 			
 		}
+        
+
 
     public:
         FloorPlaneMapping() : nh_("~") {
@@ -112,7 +116,7 @@ class FloorPlaneMapping {
 
 int main(int argc, char * argv[]) 
 {
-    ros::init(argc,argv,"floor_plane_Ransac");
+    ros::init(argc,argv,"floor_plane_mapping");
     FloorPlaneMapping fp;
 
     ros::spin();
