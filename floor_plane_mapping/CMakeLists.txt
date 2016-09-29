@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES floor_plane_mapping
-#  CATKIN_DEPENDS message_generation pcl_ros rosccp rospy sensor_msgs std_msgs tf visualization_msgs
+  CATKIN_DEPENDS pcl_ros rosccp rospy sensor_msgs std_msgs tf visualization_msgs
 #  DEPENDS system_lib
 )
 
@@ -132,16 +133,16 @@ include_directories(
 # add_dependencies(floor_plane_mapping ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(floor_plane_mapping_node src/floor_plane_mapping_node.cpp)
+add_executable(floor_plane_mapping_node src/floor_plane_mapping.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(floor_plane_mapping_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(floor_plane_mapping_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(floor_plane_mapping_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -158,11 +159,11 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS floor_plane_mapping floor_plane_mapping_node
+#install(TARGETS floor_plane_mapping
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+#)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
