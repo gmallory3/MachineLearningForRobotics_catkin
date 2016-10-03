@@ -51,11 +51,15 @@ class FloorPlaneMapping {
             pcl::fromROSMsg(*msg, temp);
             
             // Make sure the point cloud is in the base-frame
-            listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
-            pcl_ros::transformPointCloud(base_frame_,msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
             
-            listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
-            pcl_ros::transformPointCloud(world_frame_,msg->header.stamp, temp, msg->header.frame_id, worldpc_, listener_);
+            // wait for the transform from arg 1 to arg 2. Need the one at time arg3. Only wait for arg4 duration.
+            listener_.waitForTransform(base_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
+            
+									   // target frame, target time,   ptc in,    fixed frame,       ptc out,   transform listener 
+            pcl_ros::transformPointCloud(base_frame_, msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
+            
+            listener_.waitForTransform(base_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
+            pcl_ros::transformPointCloud(world_frame_, msg->header.stamp, temp, msg->header.frame_id, worldpc_, listener_);
 
             unsigned int n = temp.size();
             std::vector<size_t> pidx;
@@ -87,6 +91,8 @@ class FloorPlaneMapping {
 			//	pcl::PointXYZ & P = *it;
 			//	double x = P.x, y = P.y, z = P.z;
 			//}
+			
+			// push point cloud points into our matrix at the appropriate index. 
             for (int i=0; i<n; i++) {
 				int j = floor((worldpc_[i].x + 5)*n_x/10);
 				int k = floor((worldpc_[i].y + 5)*n_y/10);
@@ -95,10 +101,14 @@ class FloorPlaneMapping {
 			
 			
 			for (int i=0; i<n_x; i++) {
+				
 				for (int j=0; j<n_y; i++) {
 					int n_list = map_array[i][j].size();
+					// reset best for next matrix index. 
+					best = 0;
 					
-					for (unsigned int i=0;i<(unsigned)n_samples;i++) {
+					// **** n samples or n list? ****					
+					for (unsigned int k=0; k<(unsigned)n_samples; k++) {
 						// Implement RANSAC here. Useful commands:
 						// Select a random number in [0,n-1]
 						size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -113,7 +123,7 @@ class FloorPlaneMapping {
 						// Finding the plane equation by solving AY=B
 						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_1].y, 1, 
 												map_array[i][j][j_2].x, map_array[i][j][j_2].y, 1,
-												map_array[i][j][j_3]].x, map_array[i][j][j_3].y, 1;
+												map_array[i][j][j_3].x, map_array[i][j][j_3].y, 1;
 							
 						Eigen::Vector3d B; B << map_array[i][j][j_1].z, map_array[i][j][j_2].z, map_array[i][j][j_3].z; 
 						
@@ -133,18 +143,20 @@ class FloorPlaneMapping {
 						
 						if (count > best) {
 							best = count;
-							for (unsigned int k = 0; k < 3; k++) {
-								X[k] = Y[k];
+							for (unsigned int q = 0; q < 3; q++) {
+								X[q] = Y[q];
 							}
 						}
-
+			
 					}
+					
 					cv::Mat cvMat(n_x, n_y, DataType<float>::type);
 					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
 					cvMat(i,j) = cos;
 				}
-			}
-        }
+			} // end iterating through matrix
+			
+        } // end callback 
         
 
 
@@ -163,9 +175,9 @@ class FloorPlaneMapping {
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
 
-            scan_sub_ = nh_.subscribe("scans",1,&FloorPlaneMapping::pc_callback,this);
-            //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope",100,&FloorPlaneMapping::slope_callback,this);
-            //ransac_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("ransac_mapping",100);
+            scan_sub_ = nh_.subscribe("scans", 1, &FloorPlaneMapping::pc_callback, this);
+            //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope", 100, &FloorPlaneMapping::slope_callback, this);
+            //ransac_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("ransac_mapping", 100);
         }
 
 };
