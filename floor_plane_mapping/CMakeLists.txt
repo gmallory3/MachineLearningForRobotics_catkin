@@ -13,11 +13,13 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   visualization_msgs
   message_generation
+  cv_bridge
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(OpenCV REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -107,19 +109,29 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES floor_plane_mapping
-  CATKIN_DEPENDS pcl_ros rosccp rospy sensor_msgs std_msgs tf visualization_msgs
+  CATKIN_DEPENDS pcl_ros rosccp rospy sensor_msgs std_msgs tf visualization_msgs cv_bridge image_transport
 #  DEPENDS system_lib
 )
 
 ###########
 ## Build ##
 ###########
-
+# eigen 2 or 3
+find_path(EIGEN_INCLUDE_DIR Eigen/Core
+	/usr/local/include/eigen3
+	/usr/local/include/eigen2
+	/usr/local/include/eigen
+	/usr/include/eigen3
+	/usr/include/eigen2
+	/usr/include/eigen
+	/opt/ros/diamondback/stacks/geometry/eigen/include
+)
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIR}
 )
 
 ## Declare a C++ library
@@ -142,6 +154,7 @@ add_executable(floor_plane_mapping_node src/floor_plane_mapping.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(floor_plane_mapping_node
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 #############
@@ -159,11 +172,11 @@ target_link_libraries(floor_plane_mapping_node
 # )
 
 ## Mark executables and/or libraries for installation
-#install(TARGETS floor_plane_mapping
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+install(TARGETS floor_plane_mapping_node
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/

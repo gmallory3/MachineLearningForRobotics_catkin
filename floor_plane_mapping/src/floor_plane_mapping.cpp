@@ -22,9 +22,10 @@ class FloorPlaneMapping {
     protected:
         ros::Subscriber scan_sub_;
         ros::Subscriber ransac_sub_;
-        ros::Publisher ransac_pub_;
+        ros::ServiceServer ransac_client_;
         tf::TransformListener listener_;
-
+        
+		image_transport::ImageTransport it_;
         ros::NodeHandle nh_;
         std::string base_frame_;
         std::string world_frame_;
@@ -32,21 +33,24 @@ class FloorPlaneMapping {
         double tolerance;
         int n_samples; 
         int n_x, n_y;
+        cv::Mat_<uint8_t> cvMap;
 
+		image_transport::Publisher im_pub;
+        
+        
         pcl::PointCloud<pcl::PointXYZ> lastpc_;
         pcl::PointCloud<pcl::PointXYZ> worldpc_;
         
-		typedef std::list<pcl::PointXYZ> PointList;
+		typedef std::vector<pcl::PointXYZ> PointList;
 		typedef std::vector<PointList> PointListVector;
 		typedef std::vector<PointListVector> PointListArray;
-		
-		
+		PointListArray map_array;
 		
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
-			
-			PointListArray map_array(n_x,PointListVector(n_y));
+			std::cout << " okay 52 ";
+			//PointListArray map_array(n_x,PointListVector(n_y));
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
             
@@ -81,16 +85,11 @@ class FloorPlaneMapping {
                 }
                 pidx.push_back(i);
             }
-            
+            std::cout << " okay 88 ";
             n = pidx.size();
-            size_t best = 0;
+            size_t best = 0;            
+            double X[3] = {0,0,0};
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
-            
-            //array[i][j].push_back(point[k]);
-			//for (PointList::const_iterator it=array[i][j].begin();it != array[i][j].end(); it++) {
-			//	pcl::PointXYZ & P = *it;
-			//	double x = P.x, y = P.y, z = P.z;
-			//}
 			
 			// push point cloud points into our matrix at the appropriate index. 
             for (int i=0; i<n; i++) {
@@ -99,17 +98,23 @@ class FloorPlaneMapping {
 				map_array[j][k].push_back(worldpc_[i]);
 			}
 			
+			/*
+			for (int i=0; i<n_x; i++) {
+				
+				for (int j=0; j<n_y; j++) {
+					bool map(floor_plane_ransac::floor_plane_ransac
+					sensor_msgs::PointCloud2ConstPtr msg;
+					pcl::toROSMsg(*map_array[i][j], msg);
+				}
+			}*/
 			
 			for (int i=0; i<n_x; i++) {
 				
-				for (int j=0; j<n_y; i++) {
+				for (int j=0; j<n_y; j++) {
 					int n_list = map_array[i][j].size();
-					// reset best for next matrix index. 
 					best = 0;
-					
-					// **** n samples or n list? ****					
+								
 					for (unsigned int k=0; k<(unsigned)n_samples; k++) {
-						// Implement RANSAC here. Useful commands:
 						// Select a random number in [0,n-1]
 						size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
 						size_t j_2 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -121,7 +126,7 @@ class FloorPlaneMapping {
 						// Create a 3D point:
 						// Eigen::Vector3f P; P << x,y,z;
 						// Finding the plane equation by solving AY=B
-						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_1].y, 1, 
+						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_2].y, 1, 
 												map_array[i][j][j_2].x, map_array[i][j][j_2].y, 1,
 												map_array[i][j][j_3].x, map_array[i][j][j_3].y, 1;
 							
@@ -136,6 +141,7 @@ class FloorPlaneMapping {
 						
 						for (PointList::const_iterator it=map_array[i][j].begin();it != map_array[i][j].end(); it++) {
 							const pcl::PointXYZ & P = *it;
+	
 							double x = P.x, y = P.y, z = P.z;
 							double dist = fabs(Y[0] * x + Y[1] * y - z + Y[2])/sqrt(pow(Y[0],2.0)+pow(Y[1],2.0)+1);
 							if (dist <= tolerance) {count++;}
@@ -149,35 +155,51 @@ class FloorPlaneMapping {
 						}
 			
 					}
-					
-					cv::Mat cvMat(n_x, n_y, DataType<float>::type);
+					std::cout << " okay 158";
 					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
-					cvMat(i,j) = cos;
+					if (cos >= 0.5) {cvMap(i,j) = 127;}
+					else {cvMap(i,j) = 200;}
+					
+					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
+					im_pub.publish(imMsg);
 				}
 			} // end iterating through matrix
+			
+			
 			
         } // end callback 
         
 
 
     public:
-        FloorPlaneMapping() : nh_("~") {
+        FloorPlaneMapping() : nh_("~"), it_(nh_) {
             nh_.param("base_frame",base_frame_,std::string("/body"));
             nh_.param("world_frame",world_frame_,std::string("/body"));
             nh_.param("max_range",max_range_,5.0);
+            nh_.param("n_samples",n_samples,1000);
+            nh_.param("tolerance",tolerance,1.0);
 			nh_.param("n_x",n_x,10);
 			nh_.param("n_y",n_y,10);
 			
             ROS_INFO("Searching for Plane parameter z = a x + b y + c");
             ROS_INFO("RANSAC: %d iteration with %f tolerance",n_samples,tolerance);
             assert(n_samples > 0);
-
+			
+			int dims[2] = {n_x,n_y};
+            cvMap = cv::Mat_<uint8_t>(2,dims);
+            cvMap = 0;
+			
+			map_array.assign(n_x,PointListVector(n_y));
+			
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
 
             scan_sub_ = nh_.subscribe("scans", 1, &FloorPlaneMapping::pc_callback, this);
+            im_pub = it_.advertise("camera/image", 1);
             //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope", 100, &FloorPlaneMapping::slope_callback, this);
-            //ransac_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZ>>("ransac_mapping", 100);
+            //ros::ServiceClient client = nh_.serviceClient<floor_plan_mapping::GetSlope>("Get_Slope");
+            //floor_plane_mapping::GetSlope srv;
+			//ransac_client_ = nh_.advertiseService("ransac_mapping", add);
         }
 
 };
@@ -191,4 +213,7 @@ int main(int argc, char * argv[])
     return 0;
 }
 
+// active changes: fixed the j loop to so it has j++ rather than i++. 
+// 					changed the way map_array gets instanitated. 
+//					added n_samples to constructor (to be set from launch file).
 

@@ -1,9 +1,6 @@
 <launch>
 	
-	<!--<include file="$(find floor_plane_ransac)/launch/fpr.launch"/>
-	<include file="$(find floor_nav)/launch/launch_vrep.launch"/>-->
-	
-	<node pkg="floor_plan_mapping" type="floor_plane_mapping" name ="floor_plane_mapping" output="screen">
+	<node pkg="floor_plane_mapping" type="floor_plane_mapping_node" name ="floor_plane_mapping" output="screen">
 	  launch-prefix="xterm -e gdb --args"
       <param name="base_frame" value="/bubbleRob" />
       <param name="world_frame" value="/world" />

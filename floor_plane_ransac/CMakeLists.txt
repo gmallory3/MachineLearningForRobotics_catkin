@@ -4,10 +4,10 @@ project(floor_plane_ransac)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS pcl_ros roscpp sensor_msgs tf visualization_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS pcl_ros roscpp sensor_msgs tf visualization_msgs message_generation std_msgs)
+
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -51,7 +51,7 @@ find_package(catkin REQUIRED COMPONENTS pcl_ros roscpp sensor_msgs tf visualizat
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES floor_plane_ransac
-  CATKIN_DEPENDS pcl_ros roscpp sensor_msgs tf visualization_msgs
+  CATKIN_DEPENDS pcl_ros roscpp sensor_msgs tf visualization_msgs std_msgs 
   message_runtime
 #  DEPENDS system_lib
 )
