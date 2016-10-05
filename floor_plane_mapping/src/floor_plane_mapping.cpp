@@ -25,8 +25,8 @@ class FloorPlaneMapping {
         ros::ServiceServer ransac_client_;
         tf::TransformListener listener_;
         
-		image_transport::ImageTransport it_;
         ros::NodeHandle nh_;
+		image_transport::ImageTransport it_;
         std::string base_frame_;
         std::string world_frame_;
         double max_range_;
@@ -49,8 +49,6 @@ class FloorPlaneMapping {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
-			std::cout << " okay 52 ";
-			//PointListArray map_array(n_x,PointListVector(n_y));
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
             
@@ -62,7 +60,7 @@ class FloorPlaneMapping {
 									   // target frame, target time,   ptc in,    fixed frame,       ptc out,   transform listener 
             pcl_ros::transformPointCloud(base_frame_, msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
             
-            listener_.waitForTransform(base_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
+            listener_.waitForTransform(world_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
             pcl_ros::transformPointCloud(world_frame_, msg->header.stamp, temp, msg->header.frame_id, worldpc_, listener_);
 
             unsigned int n = temp.size();
@@ -85,17 +83,15 @@ class FloorPlaneMapping {
                 }
                 pidx.push_back(i);
             }
-            std::cout << " okay 88 ";
             n = pidx.size();
-            size_t best = 0;            
-            double X[3] = {0,0,0};
+            
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
 			
 			// push point cloud points into our matrix at the appropriate index. 
             for (int i=0; i<n; i++) {
-				int j = floor((worldpc_[i].x + 5)*n_x/10);
-				int k = floor((worldpc_[i].y + 5)*n_y/10);
-				map_array[j][k].push_back(worldpc_[i]);
+				int j = floor((worldpc_[pidx[i]].x + 5)*n_x/10);
+				int k = floor((worldpc_[pidx[i]].y + 5)*n_y/10);
+				map_array[j][k].push_back(worldpc_[pidx[i]]);
 			}
 			
 			/*
@@ -111,22 +107,43 @@ class FloorPlaneMapping {
 			for (int i=0; i<n_x; i++) {
 				
 				for (int j=0; j<n_y; j++) {
+					
+					size_t best = 0;
 					int n_list = map_array[i][j].size();
-					best = 0;
-								
+					double X[3]={0,0,0};				
 					for (unsigned int k=0; k<(unsigned)n_samples; k++) {
 						// Select a random number in [0,n-1]
 						size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
 						size_t j_2 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
 						size_t j_3 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
 				
-						// Verify there are no similar points
+						// Verifying there are no similar points
 						if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
 						 
-						// Create a 3D point:
-						// Eigen::Vector3f P; P << x,y,z;
 						// Finding the plane equation by solving AY=B
-						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_2].y, 1, 
+						
+						/*double x1, x2, x3;
+						double y1, y2, y3;
+						double z1, z2, z3;
+						if (map_array[i][j].size() > j_1) {
+							PointList::const_iterator itr=map_array[i][j].begin();
+							std::advance(itr, j_1);
+							const pcl::PointXYZ & P1 = *itr;
+							x1 = P1.x, y1 = P1.y, z1 = P1.z;
+						}
+						if (map_array[i][j].size() > j_2) {
+							PointList::const_iterator itr=map_array[i][j].begin();
+							std::advance(itr, j_2);
+							const pcl::PointXYZ & P1 = *itr;
+							x2 = P1.x, y2 = P1.y, z2 = P1.z;
+						}
+						if (map_array[i][j].size() > j_3) {
+							PointList::const_iterator itr=map_array[i][j].begin();
+							std::advance(itr, j_3);
+							const pcl::PointXYZ & P1 = *itr;
+							x3 = P1.x, y3 = P1.y, z3 = P1.z;
+						}*/
+						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_1].y, 1, 
 												map_array[i][j][j_2].x, map_array[i][j][j_2].y, 1,
 												map_array[i][j][j_3].x, map_array[i][j][j_3].y, 1;
 							
@@ -155,11 +172,11 @@ class FloorPlaneMapping {
 						}
 			
 					}
-					std::cout << " okay 158";
 					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
-					if (cos >= 0.5) {cvMap(i,j) = 127;}
-					else {cvMap(i,j) = 200;}
-					
+					if (cos = 1) {cvMap(i,j) = 0;}
+					else if(cos >= 0.5 && cos < 1) {cvMap(i,j) = 127;}
+					else {cvMap(i,j) = 255;}
+					ROS_INFO("cos: %f", cos);	
 					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
 					im_pub.publish(imMsg);
 				}
