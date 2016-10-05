@@ -88,9 +88,13 @@ class FloorPlaneMapping {
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
 			
 			// push point cloud points into our matrix at the appropriate index. 
-            for (int i=0; i<n; i++) {
+            for (unsigned int i=0; i<n; i++) {
 				int j = floor((worldpc_[pidx[i]].x + 5)*n_x/10);
+				if (j>=n_x) {j=n_x-1;}
+				if (j<0) {j=0;}
 				int k = floor((worldpc_[pidx[i]].y + 5)*n_y/10);
+				if (k>=n_y) {k=n_y-1;}
+				if (k<0) {k=0;}
 				map_array[j][k].push_back(worldpc_[pidx[i]]);
 			}
 			
@@ -107,10 +111,10 @@ class FloorPlaneMapping {
 			for (int i=0; i<n_x; i++) {
 				
 				for (int j=0; j<n_y; j++) {
-					
+					double cos;
+					double X[3]={0,0,0};				
 					size_t best = 0;
 					int n_list = map_array[i][j].size();
-					double X[3]={0,0,0};				
 					for (unsigned int k=0; k<(unsigned)n_samples; k++) {
 						// Select a random number in [0,n-1]
 						size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -148,7 +152,7 @@ class FloorPlaneMapping {
 												map_array[i][j][j_3].x, map_array[i][j][j_3].y, 1;
 							
 						Eigen::Vector3d B; B << map_array[i][j][j_1].z, map_array[i][j][j_2].z, map_array[i][j][j_3].z; 
-						
+						//ROS_INFO("[%f,%f,%f]", map_array[i][j][j_1].x, map_array[i][j][j_1].y, map_array[i][j][j_1].z);		
 						//Verify that A is inversible
 						if (A.determinant() == 0) {continue;}
 						
@@ -170,13 +174,12 @@ class FloorPlaneMapping {
 								X[q] = Y[q];
 							}
 						}
-			
+						//ROS_INFO("[%f,%f,%f]", X[0], X[1], X[2]);
 					}
-					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
-					if (cos = 1) {cvMap(i,j) = 0;}
-					else if(cos >= 0.5 && cos < 1) {cvMap(i,j) = 127;}
-					else {cvMap(i,j) = 255;}
-					ROS_INFO("cos: %f", cos);	
+					cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
+					if (n_list == 0) {cvMap(i,j) = 0;}
+					else if(cos >= 0.75) {cvMap(i,j) = 255;}
+					else {cvMap(i,j) = 127;}
 					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
 					im_pub.publish(imMsg);
 				}
