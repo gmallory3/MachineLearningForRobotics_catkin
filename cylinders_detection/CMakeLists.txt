@@ -107,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES cylinders_detection
-  CATKIN_DEPENDS pcl_ros message_generation roscpp rospy sensor_msgs std_msgs tf visualization_msgs
+  CATKIN_DEPENDS pcl_ros roscpp rospy sensor_msgs std_msgs tf visualization_msgs
   message_runtime
 #  DEPENDS system_lib
 )
@@ -171,7 +171,7 @@ target_link_libraries(cylinders_detection
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS cylinders_detection cylinders_detection_node
+install(TARGETS cylinders_detection cylinders_detection
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

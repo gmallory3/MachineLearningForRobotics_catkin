@@ -1,0 +1,12 @@
+<launch>
+
+  <node pkg="cylinders_detection" type="cylinders_detection" name="cylinders_detection" output="screen">
+      launch-prefix="xterm -e gdb --args"
+      <param name="base_frame" value="/bubbleRob" />
+      <param name="max_range" value="2.0" />
+      <param name="n_samples" value="10000" />
+      <param name="tolerance" value="0.05" />
+
+      <remap from="/cylinders_detection/scans" to="/vrep/depthSensor"/>
+  </node>
+</launch>
