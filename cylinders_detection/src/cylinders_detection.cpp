@@ -26,7 +26,9 @@ class CylindersDetection {
         std::string base_frame_;
         double max_range_;
         double tolerance;
-        int n_samples; 
+        int n_samples;
+        int min_best;
+        int cyl_id;
 
         double best_radius;
         pcl::PointCloud<pcl::PointXYZ> lastpc_;
@@ -82,9 +84,6 @@ class CylindersDetection {
 				
               // Verify there are no similar points
               if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
-				 
-			
-		
 	
               Eigen::Vector3d C; 
               
@@ -97,8 +96,6 @@ class CylindersDetection {
 			
               double radius = sqrt(pow(lastpc_[pidx[j_1]].x-C[0],2.0)+pow(lastpc_[pidx[j_1]].y-C[1],2.0));
 				
-	
- 
               unsigned int count = 0;
 				
               for (unsigned j = 0; j < n; j++) {
@@ -114,8 +111,8 @@ class CylindersDetection {
                   best_radius = radius;
                 }
               } 
-
             }
+            //ROS_INFO("Best = %d", best);
             //
             // END OF TODO
             
@@ -126,33 +123,34 @@ class CylindersDetection {
 			
 			
 			//Publish the floor plane
-            ROS_INFO("Extracted circle: (x - %.2f)^2 + (y - %.2f)^2 = %.2f^2",X[0],X[1],best_radius);			
+            if (best > (unsigned)min_best) {
+              ROS_INFO("Extracted circle: (x - %.2f)^2 + (y - %.2f)^2 = %.2f^2",X[0],X[1],best_radius);			
 
-            visualization_msgs::Marker m;
-            m.header.stamp = msg->header.stamp;
-            m.header.frame_id = base_frame_;
-            m.ns = "cylinders";
-            m.id = 1;
-            m.type = visualization_msgs::Marker::CYLINDER;
-            m.action = visualization_msgs::Marker::ADD;
-            m.pose.position.x = X[0];
-            m.pose.position.y = X[1];
-            m.pose.position.z = X[2];
-            m.pose.orientation.x = 0;
-            m.pose.orientation.y = 0;
-            m.pose.orientation.z = 0;
-            m.pose.orientation.w = 0;
-            //tf::quaternionTFToMsg(Q,m.pose.orientation);
-            m.scale.x = best_radius;
-            m.scale.y = best_radius;
-            m.scale.z = 0.01;
-            m.color.a = 0.5;
-            m.color.r = 1.0;
-            m.color.g = 0.0;
-            m.color.b = 1.0;
+              visualization_msgs::Marker m;
+              m.header.stamp = msg->header.stamp;
+              m.header.frame_id = base_frame_;
+              m.ns = "cylinders";
+              m.id = cyl_id++;
+              m.type = visualization_msgs::Marker::CYLINDER;
+              m.action = visualization_msgs::Marker::ADD;
+              m.pose.position.x = X[0];
+              m.pose.position.y = X[1];
+              m.pose.position.z = X[2];
+              m.pose.orientation.x = 0;
+              m.pose.orientation.y = 0;
+              m.pose.orientation.z = 0;
+              m.pose.orientation.w = 0;
+              //tf::quaternionTFToMsg(Q,m.pose.orientation);
+              m.scale.x = 2*best_radius;
+              m.scale.y = 2*best_radius;
+              m.scale.z = 0.01;
+              m.color.a = 0.5;
+              m.color.r = 1.0;
+              m.color.g = 0.0;
+              m.color.b = 1.0;
 
-            marker_pub_.publish(m);
-            
+              marker_pub_.publish(m);
+            }
         }
 
     public:
@@ -161,14 +159,14 @@ class CylindersDetection {
             nh_.param("max_range",max_range_,5.0);
             nh_.param("n_samples",n_samples,1000);
             nh_.param("tolerance",tolerance,1.0);
-
+            nh_.param("min_best",min_best,7000);
             ROS_INFO("Searching for cylinders");
             ROS_INFO("RANSAC: %d iteration with %f tolerance",n_samples,tolerance);
             assert(n_samples > 0);
 
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
-
+            cyl_id = 0;
             scan_sub_ = nh_.subscribe("scans",1,&CylindersDetection::pc_callback,this);
             marker_pub_ = nh_.advertise<visualization_msgs::Marker>("cylinders",1);
 			
