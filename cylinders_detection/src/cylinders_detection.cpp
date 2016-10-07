@@ -84,7 +84,10 @@ class CylindersDetection {
 				
               // Verify there are no similar points
               if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
-	
+              double dist1 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_2]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_2]].y,2.0));
+              double dist2 = sqrt(pow(lastpc_[pidx[j_2]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_2]].y - lastpc_[pidx[j_3]].y,2.0));
+              double dist3 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_3]].y,2.0));
+              if (dist1 < 0.005 || dist2 < 0.005 || dist3 < 0.005) {continue;}	
               Eigen::Vector3d C; 
               
               float ma = (lastpc_[pidx[j_2]].y - lastpc_[pidx[j_1]].y)/(lastpc_[pidx[j_2]].x-lastpc_[pidx[j_1]].x);
@@ -115,15 +118,9 @@ class CylindersDetection {
             //ROS_INFO("Best = %d", best);
             //
             // END OF TODO
-            
-
-		
-	
-
 			
-			
-			//Publish the floor plane
-            if (best > (unsigned)min_best) {
+			//Publish the cylinder marker
+            if (best > (unsigned)min_best && best_radius < 1.0) {
               ROS_INFO("Extracted circle: (x - %.2f)^2 + (y - %.2f)^2 = %.2f^2",X[0],X[1],best_radius);			
 
               visualization_msgs::Marker m;
