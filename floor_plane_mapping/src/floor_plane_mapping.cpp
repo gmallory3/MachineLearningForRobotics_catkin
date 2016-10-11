@@ -49,6 +49,8 @@ class FloorPlaneMapping {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
+			
+			//PointListArray map_array(n_x,PointListVector(n_y));
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
             
@@ -83,6 +85,7 @@ class FloorPlaneMapping {
                 }
                 pidx.push_back(i);
             }
+
             n = pidx.size();
             
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
@@ -172,6 +175,7 @@ class FloorPlaneMapping {
 						}
 			
 					}
+
 					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
 					if (cos = 1) {cvMap(i,j) = 0;}
 					else if(cos >= 0.5 && cos < 1) {cvMap(i,j) = 127;}
