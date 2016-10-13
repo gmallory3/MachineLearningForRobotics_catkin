@@ -33,7 +33,9 @@ class FloorPlaneMapping {
         double tolerance;
         int n_samples; 
         int n_x, n_y;
+        double epsilon;
         cv::Mat_<uint8_t> cvMap;
+        cv::Mat_<float> cvProb;
 
 		image_transport::Publisher im_pub;
         
@@ -156,9 +158,25 @@ class FloorPlaneMapping {
 						//ROS_INFO("[%f,%f,%f]", X[0], X[1], X[2]);
 					}
 					cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
+          double P0 = cvProb(i,j);
+          double P1 = 1 - cvProb(i,j);
 					if (n_list == 0) {cvMap(i,j) = 0;}
-					else if(cos >= 0.75) {cvMap(i,j) = 255;}
-					else {cvMap(i,j) = 127;}
+					else if(cos >= 0.75) {
+            P0 = (1-epsilon)*P0;
+            P1 = epsilon*P1;
+            double P0n = P0/(P0+P1); 
+            double P1n = P1/(P0+P1); 
+            cvProb(i,j) = P0n;
+            cvMap(i,j) = floor(P0n*255);
+          }
+					else {
+            P0 = epsilon*P0;
+            P1 = (1-epsilon)*P1;
+            double P0n = P0/(P0+P1); 
+            double P1n = P1/(P0+P1); 
+            cvProb(i,j) = P0n;
+            cvMap(i,j) = floor(P0n*127);
+          }
 					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
 					im_pub.publish(imMsg);
 				}
@@ -179,6 +197,7 @@ class FloorPlaneMapping {
             nh_.param("tolerance",tolerance,1.0);
             nh_.param("n_x",n_x,10);
             nh_.param("n_y",n_y,10);
+            nh_.param("epsilon",epsilon,0.2);
 			
             ROS_INFO("Searching for Plane parameter z = a x + b y + c");
             ROS_INFO("RANSAC: %d iteration with %f tolerance",n_samples,tolerance);
@@ -187,7 +206,9 @@ class FloorPlaneMapping {
             int dims[2] = {n_x,n_y};
             cvMap = cv::Mat_<uint8_t>(2,dims);
             cvMap = 0;
-			
+            cvProb = cv::Mat_<float>(2,dims);
+            cvProb = 0.5;			
+
             map_array.assign(n_x,PointListVector(n_y));
 			
             // Make sure TF is ready
