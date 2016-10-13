@@ -91,9 +91,11 @@ class FloorPlaneMapping {
             ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
 			
 			// push point cloud points into our matrix at the appropriate index. 
-            for (int i=0; i<n; i++) {
+            for (unsigned int i=0; i<n; i++) {
 				int j = floor((worldpc_[pidx[i]].x + 5)*n_x/10);
+				if (j>=n_x || j<0) {continue;}
 				int k = floor((worldpc_[pidx[i]].y + 5)*n_y/10);
+				if (k>=n_y || k<0) {continue;}
 				map_array[j][k].push_back(worldpc_[pidx[i]]);
 			}
 			
@@ -110,10 +112,10 @@ class FloorPlaneMapping {
 			for (int i=0; i<n_x; i++) {
 				
 				for (int j=0; j<n_y; j++) {
-					
+					double cos;
+					double X[3]={0,0,0};				
 					size_t best = 0;
 					int n_list = map_array[i][j].size();
-					double X[3]={0,0,0};				
 					for (unsigned int k=0; k<(unsigned)n_samples; k++) {
 						// Select a random number in [0,n-1]
 						size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -124,34 +126,12 @@ class FloorPlaneMapping {
 						if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
 						 
 						// Finding the plane equation by solving AY=B
-						
-						/*double x1, x2, x3;
-						double y1, y2, y3;
-						double z1, z2, z3;
-						if (map_array[i][j].size() > j_1) {
-							PointList::const_iterator itr=map_array[i][j].begin();
-							std::advance(itr, j_1);
-							const pcl::PointXYZ & P1 = *itr;
-							x1 = P1.x, y1 = P1.y, z1 = P1.z;
-						}
-						if (map_array[i][j].size() > j_2) {
-							PointList::const_iterator itr=map_array[i][j].begin();
-							std::advance(itr, j_2);
-							const pcl::PointXYZ & P1 = *itr;
-							x2 = P1.x, y2 = P1.y, z2 = P1.z;
-						}
-						if (map_array[i][j].size() > j_3) {
-							PointList::const_iterator itr=map_array[i][j].begin();
-							std::advance(itr, j_3);
-							const pcl::PointXYZ & P1 = *itr;
-							x3 = P1.x, y3 = P1.y, z3 = P1.z;
-						}*/
 						Eigen::Matrix3d A; A << map_array[i][j][j_1].x, map_array[i][j][j_1].y, 1, 
 												map_array[i][j][j_2].x, map_array[i][j][j_2].y, 1,
 												map_array[i][j][j_3].x, map_array[i][j][j_3].y, 1;
 							
 						Eigen::Vector3d B; B << map_array[i][j][j_1].z, map_array[i][j][j_2].z, map_array[i][j][j_3].z; 
-						
+						//ROS_INFO("[%f,%f,%f]", map_array[i][j][j_1].x, map_array[i][j][j_1].y, map_array[i][j][j_1].z);		
 						//Verify that A is inversible
 						if (A.determinant() == 0) {continue;}
 						
@@ -173,18 +153,16 @@ class FloorPlaneMapping {
 								X[q] = Y[q];
 							}
 						}
-			
+						//ROS_INFO("[%f,%f,%f]", X[0], X[1], X[2]);
 					}
-
-					double cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
-					if (cos = 1) {cvMap(i,j) = 0;}
-					else if(cos >= 0.5 && cos < 1) {cvMap(i,j) = 127;}
-					else {cvMap(i,j) = 255;}
-					ROS_INFO("cos: %f", cos);	
+					cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
+					if (n_list == 0) {cvMap(i,j) = 0;}
+					else if(cos >= 0.75) {cvMap(i,j) = 255;}
+					else {cvMap(i,j) = 127;}
 					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
 					im_pub.publish(imMsg);
 				}
-			} // end iterating through matrix
+      } // end iterating through matrix
 			
 			
 			
@@ -199,18 +177,18 @@ class FloorPlaneMapping {
             nh_.param("max_range",max_range_,5.0);
             nh_.param("n_samples",n_samples,1000);
             nh_.param("tolerance",tolerance,1.0);
-			nh_.param("n_x",n_x,10);
-			nh_.param("n_y",n_y,10);
+            nh_.param("n_x",n_x,10);
+            nh_.param("n_y",n_y,10);
 			
             ROS_INFO("Searching for Plane parameter z = a x + b y + c");
             ROS_INFO("RANSAC: %d iteration with %f tolerance",n_samples,tolerance);
             assert(n_samples > 0);
 			
-			int dims[2] = {n_x,n_y};
+            int dims[2] = {n_x,n_y};
             cvMap = cv::Mat_<uint8_t>(2,dims);
             cvMap = 0;
 			
-			map_array.assign(n_x,PointListVector(n_y));
+            map_array.assign(n_x,PointListVector(n_y));
 			
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
@@ -220,7 +198,7 @@ class FloorPlaneMapping {
             //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope", 100, &FloorPlaneMapping::slope_callback, this);
             //ros::ServiceClient client = nh_.serviceClient<floor_plan_mapping::GetSlope>("Get_Slope");
             //floor_plane_mapping::GetSlope srv;
-			//ransac_client_ = nh_.advertiseService("ransac_mapping", add);
+            //ransac_client_ = nh_.advertiseService("ransac_mapping", add);
         }
 
 };
@@ -233,8 +211,4 @@ int main(int argc, char * argv[])
     ros::spin();
     return 0;
 }
-
-// active changes: fixed the j loop to so it has j++ rather than i++. 
-// 					changed the way map_array gets instanitated. 
-//					added n_samples to constructor (to be set from launch file).
 

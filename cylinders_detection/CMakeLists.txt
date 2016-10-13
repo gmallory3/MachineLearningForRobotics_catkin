@@ -1,25 +1,23 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(floor_plane_mapping)
+project(cylinders_detection)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  pcl_ros
+  message_generation
   roscpp
   rospy
   sensor_msgs
   std_msgs
   tf
   visualization_msgs
-  message_generation
-  cv_bridge
-  image_transport
+  pcl_ros
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(OpenCV REQUIRED)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -108,55 +106,54 @@ find_package(OpenCV REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES floor_plane_mapping
-  CATKIN_DEPENDS pcl_ros rosccp rospy sensor_msgs std_msgs tf visualization_msgs cv_bridge image_transport
+#  LIBRARIES cylinders_detection
+  CATKIN_DEPENDS pcl_ros roscpp rospy sensor_msgs std_msgs tf visualization_msgs
+  message_runtime
 #  DEPENDS system_lib
 )
 
 ###########
 ## Build ##
 ###########
-# eigen 2 or 3
 find_path(EIGEN_INCLUDE_DIR Eigen/Core
-	/usr/local/include/eigen3
-	/usr/local/include/eigen2
-	/usr/local/include/eigen
-	/usr/include/eigen3
-	/usr/include/eigen2
-	/usr/include/eigen
-	/opt/ros/diamondback/stacks/geometry/eigen/include
+   /usr/local/include/eigen3
+   /usr/local/include/eigen2
+   /usr/local/include/eigen
+   /usr/include/eigen3
+   /usr/include/eigen2
+   /usr/include/eigen
+   /opt/ros/diamondback/stacks/geometry/eigen/include
 )
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIR}
+ ${EIGEN_INCLUDE_DIR} ${catkin_INCLUDE_DIRS}
 )
 
 add_definitions(-g -ggdb -O3 -Wall)
 
 ## Declare a C++ library
-# add_library(floor_plane_mapping
-#   src/${PROJECT_NAME}/floor_plane_mapping.cpp
+# add_library(cylinders_detection
+#   src/${PROJECT_NAME}/cylinders_detection.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(floor_plane_mapping ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(cylinders_detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(floor_plane_mapping_node src/floor_plane_mapping.cpp)
+add_executable(cylinders_detection src/cylinders_detection.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(floor_plane_mapping_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(cylinders_detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(floor_plane_mapping_node
+target_link_libraries(cylinders_detection
   ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
 )
 
 #############
@@ -174,10 +171,10 @@ target_link_libraries(floor_plane_mapping_node
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS floor_plane_mapping_node
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(TARGETS cylinders_detection cylinders_detection
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark cpp header files for installation
@@ -199,7 +196,7 @@ install(TARGETS floor_plane_mapping_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_floor_plane_mapping.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_cylinders_detection.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
