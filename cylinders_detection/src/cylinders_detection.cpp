@@ -140,7 +140,7 @@ class CylindersDetection {
               //tf::quaternionTFToMsg(Q,m.pose.orientation);
               m.scale.x = 2*best_radius;
               m.scale.y = 2*best_radius;
-              m.scale.z = 0.01;
+              m.scale.z = 1.5;
               m.color.a = 0.5;
               m.color.r = 1.0;
               m.color.g = 0.0;

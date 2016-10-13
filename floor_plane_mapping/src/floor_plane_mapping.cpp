@@ -36,6 +36,7 @@ class FloorPlaneMapping {
         double epsilon;
         cv::Mat_<uint8_t> cvMap;
         cv::Mat_<float> cvProb;
+        cv::Mat_<float> cvSlope;
 
 		image_transport::Publisher im_pub;
         
@@ -51,7 +52,7 @@ class FloorPlaneMapping {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
-			
+			map_array.assign(n_x,PointListVector(n_y));
 			//PointListArray map_array(n_x,PointListVector(n_y));
             pcl::PointCloud<pcl::PointXYZ> temp;
             pcl::fromROSMsg(*msg, temp);
@@ -112,7 +113,6 @@ class FloorPlaneMapping {
 			}*/
 			
 			for (int i=0; i<n_x; i++) {
-				
 				for (int j=0; j<n_y; j++) {
 					double cos;
 					double X[3]={0,0,0};				
@@ -157,30 +157,31 @@ class FloorPlaneMapping {
 						}
 						//ROS_INFO("[%f,%f,%f]", X[0], X[1], X[2]);
 					}
-					cos = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
-          double P0 = cvProb(i,j);
-          double P1 = 1 - cvProb(i,j);
-					if (n_list == 0) {cvMap(i,j) = 0;}
-					else if(cos >= 0.75) {
-            P0 = (1-epsilon)*P0;
-            P1 = epsilon*P1;
-            double P0n = P0/(P0+P1); 
-            double P1n = P1/(P0+P1); 
-            cvProb(i,j) = P0n;
-            cvMap(i,j) = floor(P0n*255);
-          }
+					cvSlope(i,j) = 1 / sqrt(pow(X[0],2.0)+pow(X[1],2.0)+1);
+					cos = cvSlope(i,j);
+					double P0 = cvProb(i,j);
+					double P1 = 1 - cvProb(i,j);
+					if (cvSlope(i,j) == -1) {cvMap(i,j) = 0;}
+					if(cos >= 0.75) {
+						P0 = (1-epsilon)*P0;
+						P1 = epsilon*P1;
+						double P0n = P0/(P0+P1);
+						//double P1n = P1/(P0+P1);
+						cvProb(i,j) = P0n;
+						cvMap(i,j) = floor(P0n*255);
+					}
 					else {
-            P0 = epsilon*P0;
-            P1 = (1-epsilon)*P1;
-            double P0n = P0/(P0+P1); 
-            double P1n = P1/(P0+P1); 
-            cvProb(i,j) = P0n;
-            cvMap(i,j) = floor(P0n*127);
-          }
+						P0 = epsilon*P0;
+						P1 = (1-epsilon)*P1;
+						//double P0n = P0/(P0+P1); 
+						double P1n = P1/(P0+P1); 
+						cvProb(i,j) = P1n;
+						cvMap(i,j) = floor(P1n*127);
+					}
 					sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
 					im_pub.publish(imMsg);
 				}
-      } // end iterating through matrix
+			} // end iterating through matrix
 			
 			
 			
@@ -208,8 +209,9 @@ class FloorPlaneMapping {
             cvMap = 0;
             cvProb = cv::Mat_<float>(2,dims);
             cvProb = 0.5;			
-
-            map_array.assign(n_x,PointListVector(n_y));
+			cvSlope = cv::Mat_<float>(2,dims);
+			cvSlope = -1;
+            //map_array.assign(n_x,PointListVector(n_y));
 			
             // Make sure TF is ready
             ros::Duration(0.5).sleep();

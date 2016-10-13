@@ -1,15 +1,15 @@
 <launch>
 	
-	<node pkg="floor_plane_mapping" type="floor_plane_mapping_node" name ="floor_plane_mapping" output="screen"
-	  launch-prefix="xterm -e gdb --args">
+	<node pkg="floor_plane_mapping" type="floor_plane_mapping_node" name ="floor_plane_mapping" output="screen">
+	  launch-prefix="xterm -e gdb --args"
       <param name="base_frame" value="/bubbleRob" />
       <param name="world_frame" value="/world" />
-      <param name="max_range" value="2.0" />
-      <param name="n_samples" value="5000" />
-      <param name="tolerance" value="0.05" />
+      <param name="max_range" value="3.0" />
+      <param name="n_samples" value="10000" />
+      <param name="tolerance" value="0.1" />
       <param name="n_x" value="50" />
       <param name="n_y" value="50" />
-      <param name="epsilon" value="0.05" />
+      <param name="epsilon" value="0.25" />
 
       <remap from="/floor_plane_mapping/scans" to="/vrep/depthSensor"/>
   </node>
