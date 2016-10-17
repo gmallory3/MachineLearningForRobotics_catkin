@@ -3,7 +3,7 @@
   <node pkg="floor_plane_ransac" type="floor_plane_ransac" name="floor_plane_ransac" output="screen">
       launch-prefix="xterm -e gdb --args"
       <param name="base_frame" value="/bubbleRob" />
-      <param name="max_range" value="2.0" />
+      <param name="max_range" value="3.0" />
       <param name="n_samples" value="10000" />
       <param name="tolerance" value="0.05" />
 

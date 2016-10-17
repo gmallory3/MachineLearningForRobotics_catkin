@@ -39,12 +39,12 @@ class FloorPlaneMapping {
       cv::Mat_<uint8_t> cvMap;
       cv::Mat_<uint8_t> cvBool;
       cv::Mat_<float> cvProb;
-      cv::Mat_<float> cvSlope;
 
       double lowest_elapsed_time = 10;
       double highest_elapsed_time = 0;
       double total_time = 0;
       double number_recordings = 0;
+      double slope;
 
       image_transport::Publisher im_pub;
 
@@ -116,10 +116,10 @@ class FloorPlaneMapping {
 			
             for (int i=0; i<n_x; i++) {
               for (int j=0; j<n_y; j++) {
-                //double cos;
                 double X[3]={0,0,0};				
                 size_t best = 0;
                 int n_list = map_array[i][j].size();
+                if (n_list < 20) {continue;}
                 for (unsigned int k=0; k<(unsigned)n_samples; k++) {
                   // Select a random number in [0,n-1]
                   size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -157,25 +157,25 @@ class FloorPlaneMapping {
                     }
                   }
                 }
-                cvSlope(i,j) = 1 / sqrt(X[0]*X[0]+X[1]*X[1]+1);
+                double cos = 1 / sqrt(X[0]*X[0]+X[1]*X[1]+1);
                 double P0 = cvProb(i,j);
                 double P1 = 1 - cvProb(i,j);
                 //if (n_list == 0) {cvMap(i,j) = 0;}
-                if(cvSlope(i,j) >= 0.75 && cvBool(i,j) == 1) {
+                if(cos >= slope && cvBool(i,j) == 1) {
                   P0 = (1-epsilon)*P0;
                   P1 = epsilon*P1;
                   double P0n = P0/(P0+P1);
                   cvProb(i,j) = P0n;
-                  cvMap(i,j) = floor(15 + P0n*255);
+                  cvMap(i,j) = floor(P0n*255);
                 }
-                else if (cvBool(i,j) == 1) {
+                if (cos < slope && cvBool(i,j) == 1) {
                   P0 = epsilon*P0;
                   P1 = (1-epsilon)*P1;
                   double P1n = P1/(P0+P1); 
                   cvProb(i,j) = P1n;
-                  cvMap(i,j) = floor(15 + P1n*127);
+                  cvMap(i,j) = floor(255 - P1n*127);
                 }
-                else {continue;}
+    
                 sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
                 im_pub.publish(imMsg);
               }
@@ -205,6 +205,7 @@ class FloorPlaneMapping {
             nh_.param("n_x",n_x,10);
             nh_.param("n_y",n_y,10);
             nh_.param("epsilon",epsilon,0.2);
+            nh_.param("slope",slope,0.9);
 			
             ROS_INFO("Searching for Plane parameter z = a x + b y + c");
             ROS_INFO("RANSAC: %d iteration with %f tolerance",n_samples,tolerance);
@@ -215,8 +216,6 @@ class FloorPlaneMapping {
             cvMap = 0;
             cvProb = cv::Mat_<float>(2,dims);
             cvProb = 0.5;			
-            cvSlope = cv::Mat_<float>(2,dims);
-            cvSlope = 0;
             cvBool = cv::Mat_<uint8_t>(2,dims);
 			
             // Make sure TF is ready
@@ -224,14 +223,7 @@ class FloorPlaneMapping {
 
 	    
             scan_sub_ = nh_.subscribe("scans", 1, &FloorPlaneMapping::pc_callback, this);
-            
-	    im_pub = it_.advertise("camera/image", 1);
-            //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope", 100, &FloorPlaneMapping::slope_callback, this);
-            
-
-		//ros::ServiceClient client = nh_.serviceClient<floor_plan_mapping::GetSlope>("Get_Slope");
-            //floor_plane_mapping::GetSlope srv;
-            //ransac_client_ = nh_.advertiseService("ransac_mapping", add);
+            im_pub = it_.advertise("camera/image", 1);
         }
 
 };
