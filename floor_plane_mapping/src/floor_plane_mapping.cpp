@@ -12,11 +12,13 @@
 #include <tf/transform_listener.h>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-
+#include <ctime>
+using namespace std;
 
 class FloorPlaneMapping {
     protected:
@@ -39,8 +41,12 @@ class FloorPlaneMapping {
       cv::Mat_<float> cvProb;
       cv::Mat_<float> cvSlope;
 
-      image_transport::Publisher im_pub;
+      double lowest_elapsed_time = 10;
+      double highest_elapsed_time = 0;
+      double total_time = 0;
+      double number_recordings = 0;
 
+      image_transport::Publisher im_pub;
 
       pcl::PointCloud<pcl::PointXYZ> lastpc_;
       pcl::PointCloud<pcl::PointXYZ> worldpc_;
@@ -53,6 +59,9 @@ class FloorPlaneMapping {
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
+          clock_t begin = clock();	
+	  
+
           //PointListArray map_array(n_x,PointListVector(n_y));
           pcl::PointCloud<pcl::PointXYZ> temp;
           pcl::fromROSMsg(*msg, temp);
@@ -173,6 +182,14 @@ class FloorPlaneMapping {
             } // end iterating through matrix
 
 
+	    clock_t end = clock();
+	    double elapsed_time = double(end-begin) / CLOCKS_PER_SEC;
+	    if (elapsed_time < lowest_elapsed_time){ lowest_elapsed_time = elapsed_time;}
+	    if (elapsed_time > highest_elapsed_time){ highest_elapsed_time = elapsed_time;}
+	    total_time = total_time + elapsed_time;
+	    number_recordings = number_recordings + 1;
+
+	    ROS_INFO("Time elapsed: %f;  Lowest: %f; Highest %f; Average: %f", elapsed_time, lowest_elapsed_time, highest_elapsed_time, total_time/number_recordings); 
 
         } // end callback 
         
@@ -205,10 +222,14 @@ class FloorPlaneMapping {
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
 
+	    
             scan_sub_ = nh_.subscribe("scans", 1, &FloorPlaneMapping::pc_callback, this);
-            im_pub = it_.advertise("camera/image", 1);
+            
+	    im_pub = it_.advertise("camera/image", 1);
             //ransac_sub_ = nh_.subscribe("floor_plane_ransac/floor_slope", 100, &FloorPlaneMapping::slope_callback, this);
-            //ros::ServiceClient client = nh_.serviceClient<floor_plan_mapping::GetSlope>("Get_Slope");
+            
+
+		//ros::ServiceClient client = nh_.serviceClient<floor_plan_mapping::GetSlope>("Get_Slope");
             //floor_plane_mapping::GetSlope srv;
             //ransac_client_ = nh_.advertiseService("ransac_mapping", add);
         }
