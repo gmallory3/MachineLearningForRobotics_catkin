@@ -157,7 +157,7 @@ class FloorPlaneMapping {
                   P1 = epsilon*P1;
                   double P0n = P0/(P0+P1);
                   cvProb(i,j) = P0n;
-                  cvMap(i,j) = floor(P0n*255);
+                  cvMap(i,j) = floor(15 + P0n*255);
                 }
                 else if (cvBool(i,j) == 1) {
                   P0 = epsilon*P0;
