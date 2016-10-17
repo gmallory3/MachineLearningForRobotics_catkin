@@ -66,8 +66,7 @@ class CylindersDetection {
             
             //
             // BEGIN TODO
-            // Finding planes: z = a*x + b*y + c
-            // Remember to use the n_samples and the tolerance variable
+            // Finding circles: 
             n = pidx.size();
             size_t best = 0;
             double X[3] = {0,0,0};
@@ -76,18 +75,21 @@ class CylindersDetection {
             
             
             for (unsigned int i=0;i<(unsigned)n_samples;i++) {
-                // Implement RANSAC here. Useful commands:
-                // Select a random number in [0,n-1]
+              // Select a random number in [0,n-1]
               size_t j_1 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
               size_t j_2 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
               size_t j_3 = std::min((rand() / (double)RAND_MAX) * n,(double)n-1);
 				
               // Verify there are no similar points
               if (j_1 == j_2 || j_1 == j_3 || j_2 == j_3) {continue;}
+              
+              // Check if the 3 points are not to close
               double dist1 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_2]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_2]].y,2.0));
               double dist2 = sqrt(pow(lastpc_[pidx[j_2]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_2]].y - lastpc_[pidx[j_3]].y,2.0));
               double dist3 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_3]].y,2.0));
               if (dist1 < 0.005 || dist2 < 0.005 || dist3 < 0.005) {continue;}	
+              
+              //Finding circle's center and radius with 3 points
               Eigen::Vector3d C; 
               
               float ma = (lastpc_[pidx[j_2]].y - lastpc_[pidx[j_1]].y)/(lastpc_[pidx[j_2]].x-lastpc_[pidx[j_1]].x);
@@ -115,19 +117,17 @@ class CylindersDetection {
                 }
               } 
             }
-            //ROS_INFO("Best = %d", best);
-            //
             // END OF TODO
 			
-			//Publish the cylinder marker
-            if (best > (unsigned)min_best && best_radius < 1.0) {
+            //Publish the cylinder marker
+            if (best > (unsigned)min_best && best_radius < 0.3) {
               ROS_INFO("Extracted circle: (x - %.2f)^2 + (y - %.2f)^2 = %.2f^2",X[0],X[1],best_radius);			
 
               visualization_msgs::Marker m;
               m.header.stamp = msg->header.stamp;
               m.header.frame_id = base_frame_;
               m.ns = "cylinders";
-              m.id = cyl_id++;
+              m.id = cyl_id++; 
               m.type = visualization_msgs::Marker::CYLINDER;
               m.action = visualization_msgs::Marker::ADD;
               m.pose.position.x = X[0];
