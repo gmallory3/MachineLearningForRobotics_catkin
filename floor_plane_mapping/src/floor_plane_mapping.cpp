@@ -55,21 +55,20 @@ class FloorPlaneMapping {
       typedef std::vector<PointList> PointListVector;
       typedef std::vector<PointListVector> PointListArray;
       PointListArray map_array;
-		
+      PointListArray map_array_accumulator;	
+	
     protected: // ROS Callbacks
 
         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
           clock_t begin = clock();	
-	  
 
           //PointListArray map_array(n_x,PointListVector(n_y));
           pcl::PointCloud<pcl::PointXYZ> temp;
           pcl::fromROSMsg(*msg, temp);
 
           cvBool = 0;
-          map_array.assign(n_x,PointListVector(n_y));
-          // Make sure the point cloud is in the base-frame
-
+          
+	  // Make sure the point cloud is in the base-frame
           // wait for the transform from arg 1 to arg 2. Need the one at time arg3. Only wait for arg4 duration.
           listener_.waitForTransform(base_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
 
@@ -104,14 +103,15 @@ class FloorPlaneMapping {
 
           ROS_INFO("%d useful points out of %d",(int)n,(int)temp.size());
 			
-			// push point cloud points into our matrix at the appropriate index. 
+	  // push point cloud points into our matrix at the appropriate index. 
             for (unsigned int i=0; i<n; i++) {
               int j = floor((worldpc_[pidx[i]].x + 5)*n_x/10);
               if (j>=n_x || j<0) {continue;}
               int k = floor((worldpc_[pidx[i]].y + 5)*n_y/10);
               if (k>=n_y || k<0) {continue;}
-              map_array[j][k].push_back(worldpc_[pidx[i]]);
-              if (map_array[j][k].size() != 0) {cvBool(j,k) = 1;}
+              if (map_array[j][k].size() > 1000){continue;}
+	      map_array[j][k].push_back(worldpc_[pidx[i]]);
+	      cvBool(j,k) = 1;
             }
 			
             for (int i=0; i<n_x; i++) {
@@ -120,6 +120,8 @@ class FloorPlaneMapping {
                 size_t best = 0;
                 int n_list = map_array[i][j].size();
                 if (n_list < 20) {continue;}
+		if (cvBool(i,j) == 0) {continue;}
+
                 for (unsigned int k=0; k<(unsigned)n_samples; k++) {
                   // Select a random number in [0,n-1]
                   size_t j_1 = std::min((rand() / (double)RAND_MAX) * n_list,(double)n_list-1);
@@ -144,7 +146,6 @@ class FloorPlaneMapping {
 
                   for (PointList::const_iterator it=map_array[i][j].begin();it != map_array[i][j].end(); it++) {
                     const pcl::PointXYZ & P = *it;
-
                     double x = P.x, y = P.y, z = P.z;
                     double dist = fabs(Y[0] * x + Y[1] * y - z + Y[2])/sqrt(Y[0]*Y[0]+Y[1]*Y[1]+1);
                     if (dist <= tolerance) {count++;}
@@ -156,28 +157,17 @@ class FloorPlaneMapping {
                       X[q] = Y[q];
                     }
                   }
-                }
+                }//end RANSAC
+
                 double cos = 1 / sqrt(X[0]*X[0]+X[1]*X[1]+1);
-                double P0 = cvProb(i,j);
-                double P1 = 1 - cvProb(i,j);
                 //if (n_list == 0) {cvMap(i,j) = 0;}
-                if(cos >= slope && cvBool(i,j) == 1) {
-                  P0 = (1-epsilon)*P0;
-                  P1 = epsilon*P1;
-                  double P0n = P0/(P0+P1);
-                  cvProb(i,j) = P0n;
-                  cvMap(i,j) = floor(P0n*255);
-                }
-                if (cos < slope && cvBool(i,j) == 1) {
-                  P0 = epsilon*P0;
-                  P1 = (1-epsilon)*P1;
-                  double P1n = P1/(P0+P1); 
-                  cvProb(i,j) = P1n;
-                  cvMap(i,j) = floor(255 - P1n*127);
-                }
-    
-                sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
+                if(cos >= slope ) {cvMap(i,j) = 255;}
+		else {cvMap(i,j) = 127;}
+		cvBool(i,j) = 0;
+                
+		sensor_msgs::ImagePtr imMsg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cvMap).toImageMsg();
                 im_pub.publish(imMsg);
+		
               }
             } // end iterating through matrix
 
@@ -204,7 +194,7 @@ class FloorPlaneMapping {
             nh_.param("tolerance",tolerance,1.0);
             nh_.param("n_x",n_x,10);
             nh_.param("n_y",n_y,10);
-            nh_.param("epsilon",epsilon,0.2);
+            nh_.param("epsilon",epsilon,0.0);
             nh_.param("slope",slope,0.9);
 			
             ROS_INFO("Searching for Plane parameter z = a x + b y + c");
@@ -217,11 +207,11 @@ class FloorPlaneMapping {
             cvProb = cv::Mat_<float>(2,dims);
             cvProb = 0.5;			
             cvBool = cv::Mat_<uint8_t>(2,dims);
+	    map_array.assign(n_x,PointListVector(n_y));
 			
             // Make sure TF is ready
             ros::Duration(0.5).sleep();
 
-	    
             scan_sub_ = nh_.subscribe("scans", 1, &FloorPlaneMapping::pc_callback, this);
             im_pub = it_.advertise("camera/image", 1);
         }

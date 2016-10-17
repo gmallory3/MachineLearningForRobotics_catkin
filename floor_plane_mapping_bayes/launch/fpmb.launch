@@ -1,0 +1,19 @@
+<launch>
+	
+	<node pkg="floor_plane_mapping_bayes" type="floor_plane_mapping_bayes_node" name ="floor_plane_mapping_bayes" output="screen"
+	  launch-prefix="xterm -e gdb --args">
+      <param name="base_frame" value="/bubbleRob" />
+      <param name="world_frame" value="/world" />
+      <param name="max_range" value="2.0" />
+      <param name="n_samples" value="10000" />
+      <param name="tolerance" value="0.1" />
+      <param name="n_x" value="50" />
+      <param name="n_y" value="50" />
+      <param name="epsilon" value="0.15" />
+      <param name="slope" value="0.8" />
+
+      <remap from="/floor_plane_mapping_bayes/scans" to="/vrep/depthSensor"/>
+  </node>
+		
+		
+</launch>
