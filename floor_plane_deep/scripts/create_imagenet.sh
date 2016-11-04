@@ -4,7 +4,8 @@
 
 EXAMPLE=.
 DATA=.
-TOOLS=/home/gpu_user/caffe/build/tools
+TOOLS=/home/dream/caffe/build/tools
+#TOOLS=/cs-share/pradalier/caffe/build/tools
 
 TRAIN_DATA_ROOT=train/
 VAL_DATA_ROOT=val/

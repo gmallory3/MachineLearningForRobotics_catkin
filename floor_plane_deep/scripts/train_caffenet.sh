@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
-/home/gpu_user/caffe/build/tools/caffe train \
+TOOLS=/home/dream/caffe/build/tools
+#TOOLS=/cs-share/pradalier/caffe/build/tools
+$TOOLS/caffe train \
     --solver=solver.prototxt
