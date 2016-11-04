@@ -87,7 +87,7 @@ class CylindersDetection {
               double dist1 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_2]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_2]].y,2.0));
               double dist2 = sqrt(pow(lastpc_[pidx[j_2]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_2]].y - lastpc_[pidx[j_3]].y,2.0));
               double dist3 = sqrt(pow(lastpc_[pidx[j_1]].x - lastpc_[pidx[j_3]].x,2.0) + pow(lastpc_[pidx[j_1]].y - lastpc_[pidx[j_3]].y,2.0));
-              if (dist1 < 0.005 || dist2 < 0.005 || dist3 < 0.005) {continue;}	
+              if (dist1 < 0.05 || dist2 < 0.05 || dist3 < 0.05) {continue;}	
               
               //Finding circle's center and radius with 3 points
               Eigen::Vector3d C; 
@@ -120,7 +120,7 @@ class CylindersDetection {
             // END OF TODO
 			
             //Publish the cylinder marker
-            if (best > (unsigned)min_best && best_radius < 0.3) {
+            if (best > (unsigned)min_best && best_radius < 0.4) {
               ROS_INFO("Extracted circle: (x - %.2f)^2 + (y - %.2f)^2 = %.2f^2",X[0],X[1],best_radius);			
 
               visualization_msgs::Marker m;

@@ -23,7 +23,7 @@ try:
     for node in node_seq:
         tc.GoTo(goal_x=g.vs[node]["x"],goal_y=g.vs[node]["y"], max_velocity=0.35, k_v=1.0, max_angular_velocity=1.0)
         for angle in [0.0,pi/3,2*pi/3,pi,4*pi/3,5*pi/3, 0.0]:
-			tc.Wait(duration=6.0)
+			tc.Wait(duration=3.0)
 			tc.SetHeading(target=angle)
     tc.Wait(duration=1.0)
 

@@ -6,9 +6,9 @@
       <param name="world_frame" value="/world" />
       <param name="max_range" value="3.0" />
       <param name="n_samples" value="5000" />
-      <param name="tolerance" value="0.1" />
-      <param name="n_x" value="50" />
-      <param name="n_y" value="50" />
+      <param name="tolerance" value="0.01" />
+      <param name="n_x" value="120" />
+      <param name="n_y" value="120" />
       <param name="epsilon" value="0.15" />
       <param name="slope" value="0.8" />
 

@@ -25,7 +25,7 @@ try:
         
         # Spin 360 to capture more points 
         for angle in [0.0,pi/3,2*pi/3,pi,4*pi/3, 5*pi/3, 0.0]:
-			tc.Wait(duration=6.0)
+			tc.Wait(duration=3.0)
 			tc.SetHeading(target=angle)
     tc.Wait(duration=1.0)
 
