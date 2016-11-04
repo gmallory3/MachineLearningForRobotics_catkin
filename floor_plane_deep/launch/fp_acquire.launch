@@ -5,10 +5,7 @@
       <param name="world_frame" value="/world" />
       <param name="base_frame" value="/bubbleRob" />
       <param name="max_range" value="3.0" />
-<<<<<<< HEAD
       <param name="max_nan" value="50" />
-=======
->>>>>>> 1e698018fa752c528e36ee88a98b1b6c637e003c
       <param name="thumb_size" value="32" />
       <param name="out_dir" value="/tmp" />
       <param name="height_threshold" value="0.05" />
