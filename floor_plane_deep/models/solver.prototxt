@@ -1,4 +1,4 @@
-net: "train_val.prototxt"
+net: "/home/GTL/jloy/catkin_ws/src/floor_plane_deep/models/train_val.prototxt"
 test_iter: 1000
 test_interval: 1000
 base_lr: 0.01

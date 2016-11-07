@@ -9,8 +9,8 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 128
-    mean_file: "imagenet_mean.binaryproto"
+    crop_size: 32
+    mean_file: "/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/imagenet_mean.binaryproto"
   }
 # mean pixel / channel-wise mean instead of mean image
 #  transform_param {
@@ -21,7 +21,7 @@ layer {
 #    mirror: true
 #  }
   data_param {
-    source: "floorplane_train_lmdb"
+    source: "/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/floorplane_train_lmdb"
     batch_size: 256
     backend: LMDB
   }
@@ -36,8 +36,8 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 128
-    mean_file: "imagenet_mean.binaryproto"
+    crop_size: 32
+    mean_file: "/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/imagenet_mean.binaryproto"
   }
 # mean pixel / channel-wise mean instead of mean image
 #  transform_param {
@@ -48,7 +48,7 @@ layer {
 #    mirror: false
 #  }
   data_param {
-    source: "floorplane_val_lmdb"
+    source: "/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/floorplane_val_lmdb"
     batch_size: 50
     backend: LMDB
   }
@@ -247,7 +247,7 @@ layer {
 layer {
   name: "fc8"
   type: "InnerProduct"
-  bottom: "conv1"
+  bottom: "fc7"
   top: "fc8"
   param {
     lr_mult: 1

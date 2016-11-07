@@ -1,14 +1,15 @@
 #!/usr/bin/env sh
 # Create the imagenet lmdb inputs
-# N.B. set the path to the imagenet train + val data dirs
+# N.B.   set the path to the imagenet train + val data dirs
 
-EXAMPLE=.
-DATA=.
+EXAMPLE=/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data
+DATA=/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/
+
 TOOLS=/home/dream/caffe/build/tools
 #TOOLS=/cs-share/pradalier/caffe/build/tools
 
-TRAIN_DATA_ROOT=train/
-VAL_DATA_ROOT=val/
+TRAIN_DATA_ROOT=/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/train/
+VAL_DATA_ROOT=/home/GTL/jloy/catkin_ws/src/floor_plane_deep/data/val/
 
 rm -rf $EXAMPLE/floorplane_train_lmdb $EXAMPLE/floorplane_val_lmdb
 
