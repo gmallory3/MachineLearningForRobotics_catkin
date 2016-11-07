@@ -200,7 +200,7 @@ class FloorPlaneExtract {
             }
             printf("Image counter at %ld (%ld / %ld)\n",image_counter_,traversable_counter_,untraversable_counter_);
             
-            cv_bridge::CvImage br(img_msg->header,"bgr",img);
+            cv_bridge::CvImage br(img_msg->header,"bgr8",img);
             image_pub_.publish(br.toImageMsg());
         }
 
