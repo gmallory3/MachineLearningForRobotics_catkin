@@ -67,8 +67,11 @@ class FloorPlaneClassifier {
 
         ThumbType check_thumb(const cv::Mat_<cv::Vec3b> & thumb) {
             std::vector<float> res = caffe.run(thumb);
+            assert(res.size()==2);
             // TODO: interprete res to return a label for this image.
-            return UNUSABLE;
+            ROS_INFO("Res: %f, %f", res[0], res[1]);
+            if (res[0] >  0.5) {return UNTRAVERSABLE;}
+            else {return TRAVERSABLE;}
         }
 
 
@@ -100,6 +103,7 @@ class FloorPlaneClassifier {
                         default:
                             mark = 0; break;
                     }
+//                    ROS_INFO("%d", mark);
                     for (int tr=0;tr<thumb.rows;tr++) {
                         for (int tc=0;tc<thumb.cols;tc++) {
                             thumb.at<cv::Vec3b>(tr,tc)[mark] = 255;

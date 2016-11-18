@@ -64,6 +64,28 @@ class ShoreFollowerDrive {
             geometry_msgs::Twist out;
             std::vector<float> res = caffe.run(img);
             // TODO: convert res into out, using twist_factor_ and linear_vel_
+            ROS_INFO("---------------");
+            //for (int i = 0; i<res.size(); i++){
+            //  ROS_INFO("%f", res[i]);
+            //}
+            ROS_INFO("%f, %f, %f", res[0],res[1],res[2]);
+            out.linear.x = 0.2;
+            out.angular.z = 0;
+            if (res[0]>=res[1] && res[0]>=res[2]) {
+              out.angular.z = -twist_factor_;//*res[0];
+              ROS_INFO("Turn left. res = %f", res[0]);
+            }
+            if (res[1]>=res[0] && res[1]>=res[2]) {
+              out.linear.x += linear_vel_;//*res[1];
+              ROS_INFO("Go straight. res = %f", res[1]);
+            }
+            if (res[2]>res[0] && res[2]>res[1]) {
+             out.angular.z = twist_factor_;//*res[2];
+              ROS_INFO("Turn right. res = %f", res[2]);
+            }
+            //out.linear.x = linear_vel_*res[1];
+            //if (res[0]>res[2]) {out.angular.z = -twist_factor_*(res[0]-res[2]);}
+            //else {out.angular.z = twist_factor_*(res[2]-res[0]);}
             return out;
         }
 

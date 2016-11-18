@@ -71,6 +71,7 @@ class FloorPlaneExtract {
           int counter = 0;
           for (int r=0;r<thumb_z.rows;r++) {
             for (int c=0;c<thumb_z.cols;c++) {
+//              ROS_INFO("%f", thumb_z(r,c));
               if (isnan(thumb_z(r,c))) {
                 // ignore this point, it has not been observed from the kinect
                 counter ++;    
@@ -78,7 +79,7 @@ class FloorPlaneExtract {
                   return UNUSABLE;
                 }
               }
-              if (thumb_z(r,c) >= height_threshold_) {
+              if (fabs(thumb_z(r,c)) >= height_threshold_) {
                 return UNTRAVERSABLE;
               }
             }
@@ -190,6 +191,7 @@ class FloorPlaneExtract {
                         default:
                             mark = 0; break;
                     }
+                    ROS_INFO("%d", mark);
                     for (int tr=0;tr<thumb.rows;tr++) {
                         for (int tc=0;tc<thumb.cols;tc++) {
                             thumb.at<cv::Vec3b>(tr,tc)[mark] = 255;
