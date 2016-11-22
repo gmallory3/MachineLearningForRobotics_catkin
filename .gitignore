@@ -1,1 +1,6 @@
 *.swp
+/floor_plane_deep/all_data.tar.gz
+/floor_plane_deep/scripts/all_scripts.tar.gz
+/shore_follower/all_data.tar.gz
+/shore_follower/scripts/all_scripts.tar.gz
+
