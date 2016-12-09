@@ -3,8 +3,8 @@
 # N.B. this is available in data/ilsvrc12
 
 FILE=choppy_trial02
-EXAMPLE=/home/GTL/jloy/catkin_ws/src/shore_follower/$FILE
-DATA=/home/GTL/jloy/catkin_ws/src/shore_follower/$FILE
+EXAMPLE=/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/$FILE
+DATA=/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/$FILE
 
 TOOLS=/home/dream/caffe/build/tools
 

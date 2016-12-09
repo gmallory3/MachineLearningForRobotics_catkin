@@ -1,0 +1,16 @@
+<launch>
+
+  <node pkg="truck_driving" type="truck_driving" name="truck_driving" output="screen">
+      launch-prefix="xterm -e gdb --args"
+      <param name="base_frame" value="VSV/ground" />
+      <param name="target_ratio" value="0.65" />
+      <param name="threshold" value="0.015" />
+      <param name="twist_factor" value="0.6" />
+      <param name="linear_vel" value="0.6" />
+      <param name="max_range" value="5.0" />
+      <param name="height" value="0.05" />
+
+      <remap from="/truck_driving/scans" to="/vrep/hokuyoSensor"/>
+      <remap from="/truck_driving/twist" to="/vsv_driver/twistCommand"/>
+  </node>
+</launch>

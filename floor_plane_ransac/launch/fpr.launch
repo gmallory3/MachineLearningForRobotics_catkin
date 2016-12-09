@@ -1,10 +1,10 @@
 <launch>
 
-  <node pkg="floor_plane_ransac" type="floor_plane_ransac" name="floor_plane_ransac" output="screen">
-      launch-prefix="xterm -e gdb --args"
-      <param name="base_frame" value="/bubbleRob" />
-      <param name="max_range" value="3.0" />
-      <param name="n_samples" value="10000" />
+  <node pkg="floor_plane_ransac" type="floor_plane_ransac" name="floor_plane_ransac" output="screen"
+      launch-prefix="xterm -e gdb --args">
+      <param name="base_frame" value="/kinect_visionSensor" />
+      <param name="max_range" value="1.0" />
+      <param name="n_samples" value="5000" />
       <param name="tolerance" value="0.05" />
 
       <remap from="/floor_plane_ransac/scans" to="/vrep/depthSensor"/>

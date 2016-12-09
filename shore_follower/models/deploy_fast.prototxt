@@ -108,7 +108,7 @@ layer {
   bottom: "conv3"
   top: "fc6"
   inner_product_param {
-    num_output: 4096
+    num_output: 384 
   }
 }
 layer {
@@ -132,7 +132,7 @@ layer {
   bottom: "fc6"
   top: "fc7"
   inner_product_param {
-    num_output: 4096
+    num_output: 384
   }
 }
 layer {

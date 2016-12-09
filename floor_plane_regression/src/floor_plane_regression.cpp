@@ -82,9 +82,9 @@ class FloorPlaneRegression {
                 double y = lastpc_[pidx[i]].y;
                 double z = lastpc_[pidx[i]].z;
                 
-				A(i,0) = x;
-				A(i,1) = y;
-				A(i,2) = 1;
+                A(i,0) = x;
+                A(i,1) = y;
+                A(i,2) = 1;
 
                 B(i) = z;
                 

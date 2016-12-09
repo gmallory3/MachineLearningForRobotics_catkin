@@ -139,6 +139,7 @@ class VSVArmIK:
                     dx = sat(self.twist_value.linear.x,0,self.max_velocity) * dt
                     dy = sat(self.twist_value.linear.y,0,self.max_velocity) * dt
                     dz = sat(self.twist_value.linear.z,0,self.max_velocity) * dt
+#           dz = 0 #changes made here
                     new_x = self.x + dx
                     new_y = self.y + dy
                     new_z = self.z + dz

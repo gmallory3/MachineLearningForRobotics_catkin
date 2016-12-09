@@ -130,6 +130,7 @@ class TeleopIK:
                     dx = self.joy_value.axes[self.axis_arm_x]*self.arm_step
                     dy = self.joy_value.axes[self.axis_arm_y]*self.arm_step
                     dz = self.joy_value.axes[self.axis_arm_z]*self.arm_step
+                    dz = 0
                     if first or (abs(dx)>1e-3) or (abs(dy)>1e-3) or (abs(dz)>1e-3):
                         new_x = x + dx
                         new_y = y + dy

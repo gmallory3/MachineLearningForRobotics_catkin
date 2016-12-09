@@ -10,7 +10,7 @@ layer {
   transform_param {
     mirror: true
     crop_size: 32
-    mean_file: "/home/GTL/jloy/catkin_ws/src/shore_follower/final_trial02/imagenet_mean_fast.binaryproto"
+    mean_file: "/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/trial04/imagenet_mean_fast.binaryproto"
   }
 # mean pixel / channel-wise mean instead of mean image
 #  transform_param {
@@ -21,7 +21,7 @@ layer {
 #    mirror: true
 #  }
   data_param {
-    source: "/home/GTL/jloy/catkin_ws/src/shore_follower/final_trial02/followshore_train_lmdb"
+    source: "/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/trial04/followshore_train_lmdb"
     batch_size: 256
     backend: LMDB
   }
@@ -37,7 +37,7 @@ layer {
   transform_param {
     mirror: false
     crop_size: 32
-    mean_file: "/home/GTL/jloy/catkin_ws/src/shore_follower/final_trial02/imagenet_mean_fast.binaryproto"
+    mean_file: "/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/trial04/imagenet_mean_fast.binaryproto"
   }
 # mean pixel / channel-wise mean instead of mean image
 #  transform_param {
@@ -48,7 +48,7 @@ layer {
 #    mirror: false
 #  }
   data_param {
-    source: "/home/GTL/jloy/catkin_ws/src/shore_follower/final_trial02/followshore_val_lmdb"
+    source: "/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/trial04/followshore_val_lmdb"
     batch_size: 50
     backend: LMDB
   }
@@ -211,7 +211,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 4096
+    num_output: 384
     weight_filler {
       type: "gaussian"
       std: 0.005
@@ -251,7 +251,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 4096
+    num_output: 384
     weight_filler {
       type: "gaussian"
       std: 0.005

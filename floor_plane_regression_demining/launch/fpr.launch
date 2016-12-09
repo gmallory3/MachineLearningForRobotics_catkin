@@ -1,0 +1,15 @@
+<launch>
+
+  <node pkg="floor_plane_regression_demining" type="floor_plane_regression_demining" name="floor_plane_regression_demining" output="screen">
+      launch-prefix="xterm -e gdb --args"
+      <param name="base_frame" value="/kinect_visionSensor" />
+      <param name="world_frame" value="/world" />
+      <param name="max_range" value="2.0" />
+      <param name="linear_factor_" value="50" />
+      <param name="target_" value="0.55" />
+      <param name="threshold_" value="0.05" />
+
+      <remap from="/floor_plane_regression_demining/scans" to="/vrep/depthSensor"/>
+      <remap from="/floor_plane_regression_demining/twist" to="/arm_ik/twist"/>
+  </node>
+</launch>

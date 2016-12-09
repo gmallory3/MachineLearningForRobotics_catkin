@@ -57,6 +57,7 @@ class ShoreFollowerDrive {
         std::string deploy_file_;
         double linear_vel_;
         double twist_factor_;
+        double sensitivity_;
 
         CaffeAnalyzer caffe;
 
@@ -69,19 +70,31 @@ class ShoreFollowerDrive {
             //  ROS_INFO("%f", res[i]);
             //}
             ROS_INFO("%f, %f, %f", res[0],res[1],res[2]);
-            out.linear.x = 0.2;
-            out.angular.z = 0;
-            if (res[0]>=res[1] && res[0]>=res[2]) {
-              out.angular.z = -twist_factor_;//*res[0];
-              ROS_INFO("Turn left. res = %f", res[0]);
-            }
+            /*out.linear.x = 0;
             if (res[1]>=res[0] && res[1]>=res[2]) {
-              out.linear.x += linear_vel_;//*res[1];
-              ROS_INFO("Go straight. res = %f", res[1]);
+              //out.linear.x += linear_vel_;
+              ROS_INFO("Stay straight. res = %f", res[1]);
             }
-            if (res[2]>res[0] && res[2]>res[1]) {
-             out.angular.z = twist_factor_;//*res[2];
-              ROS_INFO("Turn right. res = %f", res[2]);
+            else if (res[0]>=res[2]) {
+              out.linear.x = -twist_factor_;
+              ROS_INFO("Move out. res = %f", res[0]);
+            }
+            else if (res[2]>res[0]) {
+             out.linear.x = twist_factor_;
+             ROS_INFO("Move in. res = %f", res[2]);
+            }*/
+            out.linear.x = 0;
+            if (res[0]>sensitivity_ || res[2] < 0.0000005) {
+              out.linear.x = -twist_factor_;
+              ROS_INFO("Move in. res = %f", res[0]);
+            }
+            else if (res[1]>=res[2]) {
+              out.linear.x = 0;
+              ROS_INFO("Stay straight. res = %f", res[1]);
+            }
+            else if (res[2]>res[1]) {
+             out.linear.x = twist_factor_;
+             ROS_INFO("Move out. res = %f", res[2]);
             }
             //out.linear.x = linear_vel_*res[1];
             //if (res[0]>res[2]) {out.angular.z = -twist_factor_*(res[0]-res[2]);}
@@ -111,6 +124,8 @@ class ShoreFollowerDrive {
             nh_.param("model_file",model_file_,std::string("caffenet.caffemodel"));
             nh_.param("mean_file",mean_file_,std::string("mean.binaryproto"));
             nh_.param("deploy_file",deploy_file_,std::string("deploy.prototxt"));
+            nh_.param("sensitivity",sensitivity_,0.015);
+            
             std::string transport = "raw";
             nh_.param("transport",transport,transport);
 
@@ -225,13 +240,13 @@ void CaffeAnalyzer::Preprocess(const cv::Mat& img,
     else
         sample_resized.convertTo(sample_float, CV_32FC1);
 
-    // cv::Mat sample_normalized;
-    // cv::subtract(sample_float, mean_, sample_normalized);
+     cv::Mat sample_normalized;
+     cv::subtract(sample_float, mean_, sample_normalized);
 
     /* This operation will write the separate BGR planes directly to the
      * input layer of the network because it is wrapped by the cv::Mat
      * objects in input_channels. */
-    cv::split(sample_float, *input_channels);
+    cv::split(sample_normalized, *input_channels);
 
     CHECK(reinterpret_cast<float*>(input_channels->at(0).data)
             == net_->input_blobs()[0]->cpu_data())

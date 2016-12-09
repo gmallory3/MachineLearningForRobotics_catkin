@@ -2,8 +2,9 @@
 # Create the imagenet lmdb inputs
 # N.B. set the path to the imagenet train + val data dirs
 
-EXAMPLE=/home/GTL/jloy/catkin_ws/src/shore_follower/choppy_trial02
-DATA=/home/GTL/jloy/catkin_ws/src/shore_follower/choppy_trial02
+FILE=NameHere
+EXAMPLE=/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/$FILE
+DATA=/home/GTL/jloy/catkin_ws/src/shore_follower/all_data/$FILE
 TOOLS=/home/dream/caffe/build/tools
 
 TRAIN_DATA_ROOT=$DATA/train/

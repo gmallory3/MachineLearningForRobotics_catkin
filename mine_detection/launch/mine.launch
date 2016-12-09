@@ -1,0 +1,9 @@
+<launch>
+
+  <node pkg="mine_detection" type="mine_detection" name="mine_detection" output="screen">
+      launch-prefix="xterm -e gdb --args"
+      <param name="mine_radius" value="10.0" />
+
+      <remap from="/mine_detection/scans" to="/vrep/metalDetector"/>
+  </node>
+</launch>
